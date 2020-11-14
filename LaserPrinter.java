@@ -1,6 +1,6 @@
 public class LaserPrinter {
 	private boolean isOn = false;
-	private PaperAssembly paperTray;
+	private PaperAssembly  paperTray;
 	
 	public LaserPrinter() {
 		paperTray = new PaperAssembly(300);
@@ -11,8 +11,7 @@ public class LaserPrinter {
 	public void powerOn() {
 		if(isOn) {
 			System.out.println("Printer is already on.");
-		}
-		else {
+		} else {
 			System.out.println("Laser Printer - Starting up.");
 
 			try {
