@@ -15,11 +15,11 @@ public class DisplayAssembly extends AssemblyUnit {
     }
 
     public static class indicatorLight {
-        private boolean lightIsOn;
-        private boolean lightIsFlashing;
-        private String  lightColor;
+        private boolean lightIsOn;       // Determines if light is solid
+        private boolean lightIsFlashing; // Determines if light is blinking
+        private String  lightColor;      // Determines light color
 
-        // No args constructor
+        // No args constructor: defaults to off, no blinking, and black color
         public indicatorLight() {
             lightIsOn       = false;
             lightIsFlashing = false;
@@ -43,59 +43,69 @@ public class DisplayAssembly extends AssemblyUnit {
         public void setLightColor     (String lightColor)      {this.lightColor      = lightColor;}
     }
 
+    // Creates all 4 necessary indicator lights to view errors from the major parts of the Laser Printer
     public indicatorLight toner = new indicatorLight();
     public indicatorLight drum  = new indicatorLight();
     public indicatorLight error = new indicatorLight();
     public indicatorLight ready = new indicatorLight();
 
+    // Displays blinking red light for a toner error
     public void tonerError() {
         toner.lightIsOn       = false;
         toner.lightIsFlashing = true;
         toner.lightColor      = RED;
     }
 
+    // Displays solid yellow light for a toner warning
     public void tonerWarning() {
         toner.lightIsOn       = true;
         toner.lightIsFlashing = false;
         toner.lightColor      = YELLOW;
     }
 
+    // Displays blinking red light for a drum error
     public void drumError() {
         drum.lightIsOn       = false;
         drum.lightIsFlashing = true;
         drum.lightColor      = RED;
     }
 
+    // Displays solid yellow light for a drum warning
     public void drumWarning() {
         drum.lightIsOn       = true;
         drum.lightIsFlashing = false;
         drum.lightColor      = YELLOW;
     }
 
+    // Displays blinking red light for a general error
     public void generalError() {
         error.lightIsOn       = false;
         error.lightIsFlashing = true;
         error.lightColor      = RED;
     }
 
+    // Displays blinking green light when powering on the printer
     public void poweringOn() {
         ready.lightIsOn       = false;
         ready.lightIsFlashing = true;
         ready.lightColor      = GREEN;
     }
 
+    // Displays blinking green light when printing a job
     public void printing() {
         ready.lightIsOn       = false;
         ready.lightIsFlashing = true;
         ready.lightColor      = GREEN;
     }
 
+    // Displays solid green light when printer is waiting to print
     public void ready() {
         ready.lightIsOn       = true;
         ready.lightIsFlashing = false;
         ready.lightColor      = GREEN;
     }
 
+    // Resets all error/warning lights
     public void resetDisplay() {
         toner.lightIsOn       = false;
         toner.lightIsFlashing = false;
