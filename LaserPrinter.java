@@ -1,6 +1,9 @@
 public class LaserPrinter {
-	private boolean isOn = false;
-	private PaperAssembly  paperTray;
+	private boolean 		isOn = false;
+	private PaperAssembly   paperTray;
+	private DisplayAssembly display;
+	private OutputAssembly  outputTray;
+	private TonerAssembly   toner;
 	
 	public LaserPrinter() {
 		paperTray = new PaperAssembly(300);
