@@ -1,4 +1,4 @@
-public class OutputAssembly {
+public class OutputAssembly extends AssemblyUnit implements ISimAssembly {
     public static final int MAX_PAGES = 75; // Maximum number of pages allowed in the output assembly
     private int currentPagesInOutput;       // Current number of pages in the output assembly
 
@@ -28,5 +28,25 @@ public class OutputAssembly {
     // Checks if the output assembly is full
     public boolean outputAssemblyIsFull(){
         return currentPagesInOutput >= MAX_PAGES;
+    }
+
+    @Override
+    public void setValue(int setCurrentPages) {
+        currentPagesInOutput = setCurrentPages;
+    }
+
+    @Override
+    public int getValue() {
+        return currentPagesInOutput;
+    }
+
+    @Override
+    public void activate() {
+        activated = true;
+    }
+
+    @Override
+    public void deactivate() {
+        activated = false;
     }
 }

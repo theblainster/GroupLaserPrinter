@@ -1,7 +1,7 @@
 public abstract class AssemblyUnit
 {
 	protected boolean activated = false;
-	private int errorCode     = 0;
+	private   int     errorCode = 0;
 	
 	public abstract void activate()   throws AssemblyException;
 	public abstract void deactivate() throws AssemblyException;
