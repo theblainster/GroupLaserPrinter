@@ -4,6 +4,19 @@ public class DisplayAssembly extends AssemblyUnit {
     public static final String RED    = "red";
     public static final String BLACK  = "black";
 
+    private indicatorLight toner;
+    private indicatorLight drum;
+    private indicatorLight error;
+    private indicatorLight ready;
+
+    // No-args Constructor that creates 4 indicator lights for the 4 major parts of the printer
+    public DisplayAssembly() {
+        toner = new indicatorLight();
+        drum  = new indicatorLight();
+        error = new indicatorLight();
+        ready = new indicatorLight();
+    }
+
     @Override
     public void activate() {
         activated = true;
@@ -42,12 +55,6 @@ public class DisplayAssembly extends AssemblyUnit {
         public void setLightIsFlashing(boolean lightIsFlashing){this.lightIsFlashing = lightIsFlashing;}
         public void setLightColor     (String lightColor)      {this.lightColor      = lightColor;}
     }
-
-    // Creates all 4 necessary indicator lights to view errors from the major parts of the Laser Printer
-    public indicatorLight toner = new indicatorLight();
-    public indicatorLight drum  = new indicatorLight();
-    public indicatorLight error = new indicatorLight();
-    public indicatorLight ready = new indicatorLight();
 
     // Displays blinking red light for a toner error
     public void tonerError() {

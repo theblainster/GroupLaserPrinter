@@ -4,9 +4,18 @@ public class LaserPrinter {
 	private DisplayAssembly display;
 	private OutputAssembly  outputTray;
 	private TonerAssembly   toner;
+	private FuserAssembly   fuser;
+	private PrintAssembly   printing;
+	private PrintQueue		queue;
 	
 	public LaserPrinter() {
-		paperTray = new PaperAssembly(300);
+		paperTray  = new PaperAssembly(300);
+		display	   = new DisplayAssembly();
+		outputTray = new OutputAssembly();
+		toner	   = new TonerAssembly(600);
+		fuser	   = new FuserInterface();
+		printing   = new PrintAssembly();
+		queue	   = new PrintQueue();
 	}
 	
 	// Body of logic
@@ -18,12 +27,22 @@ public class LaserPrinter {
 			System.out.println("Laser Printer - Starting up.");
 
 			try {
-				paperTray.activate();
+				paperTray .activate();
+				display   .activate();
+				outputTray.activate();
+				toner	  .activate();
+				fuser	  .activate();
+				printing  .activate();
 			} catch (Exception e) {
 				System.out.println("Exception was thrown while powering on the printer.  " + e);
 			}
 		
-			if(paperTray.isActive()) {
+			if(paperTray .isActive()
+			&& display   .isActive()
+			&& outputTray.isActive()
+			&& toner	 .isActive()
+			&& fuser     .isActive()
+			&& printing  .isActive()) {
 				isOn = true;
 				System.out.println("Laser Printer successfully powered up.");
 			}
