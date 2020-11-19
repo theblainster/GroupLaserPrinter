@@ -1,7 +1,7 @@
 public class PaperAssembly extends AssemblyUnit implements ISimAssembly
 {
    static final int MAX_PAGE    = 300; // Maximum number of pages in the tray
-   static final int INPUT_PAPER = 50;  // The amount of paper the user will input
+   static final int INPUT_PAPER = 50;  // The amount of paper the user will add to the tray
    static final int LOW_PAPER   = 25;  // Lowest our paper count should be
    private int      paperTray;         // Current number of paper in the tray
 

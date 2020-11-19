@@ -20,6 +20,7 @@ public class LaserPrinter {
 	
 	// Body of logic
 
+	// TUrns on the printer
 	public void powerOn() {
 		if(isOn) {
 			System.out.println("Printer is already on.");
@@ -48,7 +49,8 @@ public class LaserPrinter {
 			}
 		}
 	}
-	
+
+	// Reports the information of the parts of the printer
 	public void reportStatus() {
 		if(isOn) {
 			System.out.println("--- Printer Status Report ---");
@@ -58,7 +60,8 @@ public class LaserPrinter {
 			System.out.println("Printer is off.");
 		}
 	}
-	
+
+	// Powers of the printers
 	public void powerOff() {
 		if(isOn) {
 			System.out.println("Laser Printer - Shutting down.");
@@ -75,6 +78,66 @@ public class LaserPrinter {
 			}
 		} else {
 			System.out.println("Printer is already off.");
+		}
+	}
+
+	// Adds paper to the paper tray
+	public void fillPaper() {
+		if (isOn) {
+			paperTray.fillPaper();
+		}
+		else {
+			System.out.println("Printer is not powered on. Please turn on the printer first.");
+		}
+	}
+
+	// Adds toner to the toner
+	public void fillToner() {
+		if (isOn) {
+			toner.tonerReload();
+		}
+		else {
+			System.out.println("Printer is not powered on. Please turn on the printer first.");
+		}
+	}
+
+	// Replaces the old drum with a new drum
+	public void replaceDrum() {
+		if (isOn) {
+			printing.replaceDrum();
+		}
+		else {
+			System.out.println("Printer is not powered on. Please turn on the printer first.");
+		}
+	}
+
+	// Adds a document to the print queue
+	public void addJob() {
+		if (isOn) {
+			queue.addDocument();
+		}
+		else {
+			System.out.println("Printer is not powered on. Please turn on the printer first.");
+		}
+	}
+
+	// Removes a document from the print queue, given a specific document ID
+	public void removeJob(int jobToRemove){
+		if (isOn) {
+			queue.removeJob(jobToRemove);
+		}
+		else {
+			System.out.println("Printer is not powered on. Please turn on the printer first.");
+		}
+	}
+
+	// Prints the first document in the queue
+	public void printJob() {
+		if (isOn) {
+			queue.print();
+		}
+		else {
+			System.out.println("Printer is not powered on. Please turn on the printer first.");
 		}
 	}
 }
