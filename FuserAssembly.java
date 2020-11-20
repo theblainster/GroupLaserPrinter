@@ -18,7 +18,7 @@ public class FuserAssembly extends AssemblyUnit implements ISimAssembly
       currentTemp = changeTemp;
    }
    
-   // Get the amount of time it takes to heat up the toner
+   // Heat the fuser up
    protected void heatUp()
    {
 	  warning(0);
@@ -35,6 +35,12 @@ public class FuserAssembly extends AssemblyUnit implements ISimAssembly
   
    }
    
+   // Cool the fuser down
+   protected void coolDown()
+   {
+      currentTemp = MIN_TEMP;
+   }
+
    // Gets passed an error number and displays the error which occurred
    protected void warning(int errorNumber)
    {
@@ -49,8 +55,7 @@ public class FuserAssembly extends AssemblyUnit implements ISimAssembly
 	  }
 	  
    }
-   
-   
+      
    // Sets the current amount of toner
    @Override
    public void setValue(int setTemp)
