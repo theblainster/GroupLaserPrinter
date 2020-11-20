@@ -32,7 +32,6 @@ public class FuserAssembly extends AssemblyUnit implements ISimAssembly
 			  currentTemp = MAX_TEMP;
 		  }
 	  }
-  
    }
    
    // Cool the fuser down
@@ -53,7 +52,6 @@ public class FuserAssembly extends AssemblyUnit implements ISimAssembly
 	  {
 	    System.out.println("Your fuser temperature is too cold");
 	  }
-	  
    }
       
    // Sets the current amount of toner
