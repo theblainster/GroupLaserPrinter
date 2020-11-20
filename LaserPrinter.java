@@ -55,6 +55,7 @@ public class LaserPrinter {
 		if(isOn) {
 			System.out.println("--- Printer Status Report ---");
 			System.out.println("          Paper Level: " + paperTray.getValue());
+			System.out.println("		  Drum  Level: " + printing .);
 			System.out.println("--- Printer Status Report Complete ---");
 		} else {
 			System.out.println("Printer is off.");
@@ -112,9 +113,9 @@ public class LaserPrinter {
 	}
 
 	// Adds a document to the print queue
-	public void addJob() {
+	public void addJob(String nameOfJob, int numberOfPagesToPrint) {
 		if (isOn) {
-			queue.addDocument();
+			queue.addJob(nameOfJob, numberOfPagesToPrint);
 		}
 		else {
 			System.out.println("Printer is not powered on. Please turn on the printer first.");
@@ -122,9 +123,9 @@ public class LaserPrinter {
 	}
 
 	// Removes a document from the print queue, given a specific document ID
-	public void removeJob(int jobToRemove){
+	public void cancelJob(int jobToRemove){
 		if (isOn) {
-			queue.removeJob(jobToRemove);
+			queue.cancelJob(jobToRemove);
 		}
 		else {
 			System.out.println("Printer is not powered on. Please turn on the printer first.");
@@ -134,7 +135,7 @@ public class LaserPrinter {
 	// Prints the first document in the queue
 	public void printJob() {
 		if (isOn) {
-			queue.print();
+			queue.printJob();
 		}
 		else {
 			System.out.println("Printer is not powered on. Please turn on the printer first.");

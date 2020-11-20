@@ -1,9 +1,11 @@
 public class Document {
-	private int pageCount = 0;
-	private String name;
+	private static int    jobId     = 0;
+	private        int    pageCount = 0;
+	private        String name;
 	
 	public Document(String n, int p) {
-		name = n;
+		jobId	  = ++jobId;
+		name 	  = n;
 		pageCount = p;
 	}
 	
@@ -14,5 +16,6 @@ public class Document {
 	public String getName() {
 		return name;
 	}
-	
+
+	public int getJobId() {return jobId;}
 }

@@ -16,7 +16,6 @@ public class PrintAssembly
    static int     sheetsPrinted    = 0;
    
 
-
    // Toggle spinning the mirror 
    public void toggleMirrorSpin() 
    {
@@ -72,15 +71,7 @@ public class PrintAssembly
    // Toggle wire charge
    public void toggleWireCharge() 
    {
-      if(wireChargeStatus) 
-      {
-         wireChargeStatus = false;
-      } 
-      
-      else 
-      {
-         wireChargeStatus = true;
-      }
+      wireChargeStatus = !wireChargeStatus;
    }
    
    // Gets the status of the wire
@@ -92,15 +83,7 @@ public class PrintAssembly
    // Toggle the discharge lamp 
    public void toggleDischargeLamp() 
    {
-      if(lampStatus) 
-      {
-         lampStatus = false;
-      } 
-   
-      else 
-      {
-         lampStatus = true;
-      }
+      lampStatus = !lampStatus;
    }
    
    // Gets the status of the discharge lamp
@@ -114,17 +97,15 @@ public class PrintAssembly
    {
       if((sheetsPrinted + number) < DRUM_MAX_LIFE ) 
       {
-         
          sheetsPrinted += number;
          
          if((DRUM_MAX_LIFE - sheetsPrinted) < DRUM_WARN_LIFE) 
-	 {
+	     {
             System.out.println("WARNING: Drum life below warning");
          }
          
          System.out.println("SUCCESSFUL: printed " + number + " sheets.");
          System.out.println("Total printed sheets: " + sheetsPrinted);
-      
       } 
 
       else 
