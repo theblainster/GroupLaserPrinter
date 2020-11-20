@@ -64,20 +64,20 @@ public class Test {
 	}
 	
 	public static void printJob(LaserPrinter o) {
-		//o.printJob();
+		o.printJob();
 	}
 	
 	public static void cancelJob(LaserPrinter o) {
-		//o.cancelJob();
+		o.cancelJob();
 	}
 	
 	public static void addJob(Scanner s, LaserPrinter o) {
-		//System.out.print("Job Name to add: ");
-		//String name = s.nextLine().toUpperCase();
-		//System.out.print("Job page count: ");
-		//String count = s.nextLine();
-		//int pageCount = Integer.parseInt(count);
-		//o.addJob(name, pageCount);
+		System.out.print("Job Name to add: ");
+		String name = s.nextLine().toUpperCase();
+		System.out.print("Job page count: ");
+		String count = s.nextLine();
+		int pageCount = Integer.parseInt(count);
+		o.addJob(name, pageCount);
 	}
 	
 	public static void displayHelp() {

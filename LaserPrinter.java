@@ -1,3 +1,5 @@
+import java.sql.SQLType;
+
 public class LaserPrinter {
 	private boolean 		isOn = false;
 	private PaperAssembly   paperTray;
@@ -54,8 +56,12 @@ public class LaserPrinter {
 	public void reportStatus() {
 		if(isOn) {
 			System.out.println("--- Printer Status Report ---");
-			System.out.println("          Paper Level: " + paperTray.getValue());
-			System.out.println("		  Drum  Level: " + printing .getValue());
+			System.out.println("          Paper Level: " + paperTray .getValue());
+			System.out.println("          Toner Level: " + toner	 .getValue());
+			System.out.println("    Fuser Temperature: " + fuser	 .getValue());
+			System.out.println("		   Drum Level: " + printing  .getValue());
+			System.out.println(" 		Jobs in Queue: " + queue     .getValue());
+			System.out.println(" Pages in Output Tray: " + outputTray.getValue());
 			System.out.println("--- Printer Status Report Complete ---");
 		} else {
 			System.out.println("Printer is off.");
@@ -123,9 +129,13 @@ public class LaserPrinter {
 	}
 
 	// Removes a document from the print queue, given a specific document ID
-	public void cancelJob(int jobToRemove){
+	public void cancelJob() {
+		queue.cancelJob();
+	}
+
+	public void cancelJob(int jobIdToRemove){
 		if (isOn) {
-			queue.cancelJob(jobToRemove);
+			queue.cancelJob(jobIdToRemove);
 		}
 		else {
 			System.out.println("Printer is not powered on. Please turn on the printer first.");

@@ -14,6 +14,8 @@ public class PrintQueue implements ISimAssembly {
         System.out.println(documents);
     }
 
+    public void cancelJob() {documents.remove();}
+
     public void cancelJob(int id) {
         documents.remove(id);
     }
