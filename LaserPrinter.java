@@ -128,11 +128,12 @@ public class LaserPrinter {
 
 	// Removes a document from the print queue, given a specific document ID
 	public void cancelJob(){
-		if (isOn) {
+		try {
+			queue.checkForJob();
+			System.out.println("Cancelled document: " + queue.nextDoc().getName());
 			queue.cancelJob();
-		}
-		else {
-			System.out.println("Printer is not powered on. Please turn on the printer first.");
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
 		}
 	}
 

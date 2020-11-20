@@ -21,6 +21,9 @@ public class PrintQueue implements ISimAssembly {
             }
             System.out.println("\n\n ---End of Print Queue---");
         }
+        else {
+            System.out.println("No jobs in queue.");
+        }
     }
 
     public void cancelJob() {documents.remove();}
@@ -43,7 +46,7 @@ public class PrintQueue implements ISimAssembly {
 
     public void checkForJob() throws Exception {
         if (nextDoc() == null) {
-            throw new Exception("No jobs in queue to print");
+            throw new Exception("No jobs in queue");
         }
     }
 }
