@@ -45,30 +45,29 @@ public class PaperAssembly extends AssemblyUnit implements ISimAssembly
    }
 	
    // Use the paper in the printer, check if its out of paper
-   protected int usePaper(int paperUsed)
-   {
+   protected void usePaper(int PaperToUse) throws Exception {
 	  warning(0);
-	  if(paperTray > paperUsed)
+	  if(paperTray > PaperToUse)
 	  {
-         return paperTray = paperTray - paperUsed;
+         paperTray = paperTray - PaperToUse;
 	  }
-	  else
-	     warning(1);
-	  return paperTray = 0;
-	  
+	  else {
+          throw new Exception("Not enough paper in the paper tray.");
+	      // warning(1);
+      }
    }
    
    // Fill the paper in the printer, Check if it's overflowing
-   protected int fillPaper()
+   protected void fillPaper()
    {
 	  if(paperTray + INPUT_PAPER < MAX_PAGE)
 	  {
-         return paperTray = paperTray + INPUT_PAPER;
+         paperTray += INPUT_PAPER;
 	  }
 	  else
 	  {
 	     warning(2);
-	     return paperTray = MAX_PAGE;
+	     paperTray = MAX_PAGE;
       }
    }
    

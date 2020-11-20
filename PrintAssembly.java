@@ -8,31 +8,49 @@ public class PrintAssembly extends AssemblyUnit implements ISimAssembly
    final static int MIRROR_SPIN_UP_RATE   = 2;
 
    // Variables
-   static boolean lampStatus       = false;
-   static boolean mirrorSpinning   = false;
-   static boolean wireChargeStatus = false;
-   static int     mirrorRotSpeed   = 0;
-   static int     sheetsPrinted    = 0;
+   private static boolean lampStatus;
+   private static boolean mirrorSpinning;
+   private static boolean wireChargeStatus;
+   private static int     mirrorRotSpeed;
+   private static int     sheetsPrinted;
    
+   public PrintAssembly() {
+      lampStatus       = false;
+      mirrorSpinning   = false;
+      wireChargeStatus = false;
+      mirrorRotSpeed   = 0;
+      sheetsPrinted    = 0;
+   }
 
-   // Toggle spinning the mirror 
-   public void toggleMirrorSpin() 
+   // Stops the mirror spinning
+   public void mirrorSpinDown()
    {
-      if(mirrorSpinning) 
+      if (mirrorSpinning)
       {
          System.out.println("Mirror spinning down.");
          decreaseMirrorSpin();
          mirrorSpinning = false;
          System.out.println("\nMirror no longer spinning.");
-      } 
+      }
+      else
+      {
+         System.out.println("Mirror already stopped.");
+      }
+   }
 
-      else 
+   // Starts the mirror spinning
+   public void mirrorSpinUp()
+   {
+      if (!mirrorSpinning)
       {
          System.out.println("Mirror spinning up.");
          increaseMirrorSpin();
          mirrorSpinning = true;
          System.out.println("\nMirror up to speed.");
-         
+      }
+      else
+      {
+         System.out.println("Mirror already spinning");
       }
    }
    
@@ -67,10 +85,16 @@ public class PrintAssembly extends AssemblyUnit implements ISimAssembly
       }
    }
    
-   // Toggle wire charge
-   public void toggleWireCharge() 
+   // Turns wire charge on
+   public void wireChargeOn()
    {
-      wireChargeStatus = !wireChargeStatus;
+      wireChargeStatus = true;
+   }
+
+   // Turns wire charge off
+   public void wireChargeOff()
+   {
+      wireChargeStatus = false;
    }
    
    // Gets the status of the wire
@@ -79,10 +103,16 @@ public class PrintAssembly extends AssemblyUnit implements ISimAssembly
       return wireChargeStatus;
    }
    
-   // Toggle the discharge lamp 
-   public void toggleDischargeLamp() 
+   // Turns discharge lamp on
+   public void dischargeLampOn()
    {
-      lampStatus = !lampStatus;
+      lampStatus = true;
+   }
+
+   // Turns discharge lamp of
+   public void dischargeLampOff()
+   {
+      lampStatus = false;
    }
    
    // Gets the status of the discharge lamp
@@ -92,8 +122,7 @@ public class PrintAssembly extends AssemblyUnit implements ISimAssembly
    }
    
    // Prints pages and displays drum life warnings
-   public void usePages(int number) 
-   {
+   public void usePages(int number) throws Exception {
       if((sheetsPrinted + number) < DRUM_MAX_LIFE ) 
       {
          sheetsPrinted += number;
@@ -108,10 +137,9 @@ public class PrintAssembly extends AssemblyUnit implements ISimAssembly
       } 
 
       else 
-         {
-          System.out.println("ERROR: Could not print, drum life too low.");
-         }
-     
+      {
+          throw new Exception("Could not print, drum life too low.");
+      }
       System.out.println("Drum life remaining: " + (DRUM_MAX_LIFE - sheetsPrinted));
    }
    
@@ -121,12 +149,20 @@ public class PrintAssembly extends AssemblyUnit implements ISimAssembly
       sheetsPrinted = 0;
    }
    
-   // Powers On/Off of all parts of the print assembly
-   public void powerCycle() 
+   // Powers on all parts of the print assembly
+   public void powerOn()
    {
-      toggleMirrorSpin();
-      toggleWireCharge();
-      toggleDischargeLamp();
+      mirrorSpinUp();
+      wireChargeOn();
+      dischargeLampOn();
+   }
+
+   // Powers off all parts of the print assembly
+   public void powerOff()
+   {
+      mirrorSpinDown();
+      wireChargeOff();
+      dischargeLampOff();
    }
 
    @Override

@@ -1,10 +1,10 @@
 public class Document {
-	private static int    jobId     = 0;
-	private        int    pageCount = 0;
+	private 	   int    jobId;
+	private        int    pageCount;
 	private        String name;
-	
-	public Document(String n, int p) {
-		jobId	  = ++jobId;
+
+	public Document(int id, String n, int p) {
+		jobId	  = id;
 		name 	  = n;
 		pageCount = p;
 	}

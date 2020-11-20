@@ -1,17 +1,26 @@
 import java.util.*;
 
 public class PrintQueue implements ISimAssembly {
-    private Queue<Document> documents = new LinkedList<Document>();
+    private LinkedList<Document> documents = new LinkedList<Document>();
 
     public void setValue(int newValue) {};
     public int  getValue()             {return documents.size();}
 
-    public int nextDoc() {
-        return documents.peek().getJobId();
+    public Document nextDoc() {
+        return documents.peek();
     }
 
-    public Queue<Document> reportQueue() {
-        return documents;
+    public void reportQueue() {
+        if (documents.size() != 0) {
+            System.out.println("\n\n ---Print Queue---");
+            for (int i = 0; i < documents.size(); i++) {
+                System.out.println("\n");
+                System.out.println("    Document ID: " + documents.get(i).getJobId());
+                System.out.println("  Document Name: " + documents.get(i).getName());
+                System.out.println("Number of Pages: " + documents.get(i).getPageCount());
+            }
+            System.out.println("\n\n ---End of Print Queue---");
+        }
     }
 
     public void cancelJob() {documents.remove();}
@@ -25,10 +34,15 @@ public class PrintQueue implements ISimAssembly {
     }
 
     public void addJob(String name, int pageCount) {
-        documents.add(new Document(name, pageCount));
+        documents.add(new Document(documents.size(), name, pageCount));
     }
 
-    public void printJob() {
-        documents.poll();
+    public void printJob() throws Exception {
+        if (documents.size() != 0) {
+            documents.pop();
+        }
+        else {
+            throw new Exception("No jobs in queue to print.");
+        }
     }
 }

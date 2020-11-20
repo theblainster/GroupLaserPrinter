@@ -56,14 +56,16 @@ public class LaserPrinter {
 	// Reports the information of the parts of the printer
 	public void reportStatus() {
 		if(isOn) {
+			System.out.println("\n\n");
 			System.out.println("--- Printer Status Report ---");
 			System.out.println("          Paper Level: " + paperTray .getValue());
 			System.out.println("          Toner Level: " + toner	 .getValue());
 			System.out.println("    Fuser Temperature: " + fuser	 .getValue());
-			System.out.println("		   Drum Level: " + printing  .getValue());
-			System.out.println(" 		Jobs in Queue: " + queue     .getValue());
+			System.out.println("           Drum Level: " + printing  .getValue());
+			System.out.println("        Jobs in Queue: " + queue     .getValue());
 			System.out.println(" Pages in Output Tray: " + outputTray.getValue());
 			System.out.println("--- Printer Status Report Complete ---");
+			System.out.println("\n\n");
 		} else {
 			System.out.println("Printer is off.");
 		}
@@ -130,13 +132,9 @@ public class LaserPrinter {
 	}
 
 	// Removes a document from the print queue, given a specific document ID
-	public void cancelJob() {
-		queue.cancelJob();
-	}
-
-	public void cancelJob(int jobIdToRemove){
+	public void cancelJob(){
 		if (isOn) {
-			queue.cancelJob(jobIdToRemove);
+			queue.cancelJob();
 		}
 		else {
 			System.out.println("Printer is not powered on. Please turn on the printer first.");
@@ -146,7 +144,16 @@ public class LaserPrinter {
 	// Prints the first document in the queue
 	public void printJob() {
 		if (isOn) {
-			queue.printJob();
+			try {
+				paperTray.usePaper(queue.nextDoc().getPageCount());
+				toner    .useToner(queue.nextDoc().getPageCount());
+				fuser    .heatUp  ();
+				printing .powerOn ();
+				printing .usePages(queue.nextDoc().getPageCount());
+				queue    .printJob();
+			} catch (Exception e) {
+				System.out.println(e.getMessage());
+			}
 		}
 		else {
 			System.out.println("Printer is not powered on. Please turn on the printer first.");
@@ -154,5 +161,7 @@ public class LaserPrinter {
 	}
 
 	// Reports the list of the documents in the queue
-	public Queue<Document> reportQueue() {return queue.reportQueue();}
+	public void reportQueue() {
+		queue.reportQueue();
+	}
 }
