@@ -13,7 +13,7 @@ public class LaserPrinter {
 		display	   = new DisplayAssembly();
 		outputTray = new OutputAssembly();
 		toner	   = new TonerAssembly(600);
-		fuser	   = new FuserInterface();
+		fuser	   = new FuserAssembly();
 		printing   = new PrintAssembly();
 		queue	   = new PrintQueue();
 	}
@@ -55,7 +55,7 @@ public class LaserPrinter {
 		if(isOn) {
 			System.out.println("--- Printer Status Report ---");
 			System.out.println("          Paper Level: " + paperTray.getValue());
-			System.out.println("		  Drum  Level: " + printing .);
+			System.out.println("		  Drum  Level: " + printing .getValue());
 			System.out.println("--- Printer Status Report Complete ---");
 		} else {
 			System.out.println("Printer is off.");

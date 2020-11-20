@@ -1,4 +1,4 @@
-public class PrintAssembly
+public class PrintAssembly extends AssemblyUnit implements ISimAssembly
 {
    // Constants
    final static int DRUM_MAX_LIFE         = 100;
@@ -6,7 +6,6 @@ public class PrintAssembly
    final static int MAX_ROTATION_SPEED    = 300;
    final static int MIRROR_SPIN_DOWN_RATE = 2;
    final static int MIRROR_SPIN_UP_RATE   = 2;
-   
 
    // Variables
    static boolean lampStatus       = false;
@@ -129,4 +128,16 @@ public class PrintAssembly
       toggleWireCharge();
       toggleDischargeLamp();
    }
+
+   @Override
+   public void setValue(int newValue) {}
+
+   @Override
+   public int getValue() {return DRUM_MAX_LIFE - sheetsPrinted;}
+
+   @Override
+   public void activate() {activated = true;}
+
+   @Override
+   public void deactivate() {activated = false;}
 }
