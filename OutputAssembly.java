@@ -30,6 +30,12 @@ public class OutputAssembly extends AssemblyUnit implements ISimAssembly {
         return currentPagesInOutput >= MAX_PAGES;
     }
 
+    public void addPagesToOutput() throws Exception {
+        if (outputAssemblyIsFull()){
+            throw new Exception("Output tray is full.");
+        }
+    }
+
     @Override
     public void setValue(int setCurrentPages) {
         currentPagesInOutput = setCurrentPages;

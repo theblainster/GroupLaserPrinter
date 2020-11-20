@@ -123,12 +123,7 @@ public class LaserPrinter {
 
 	// Adds a document to the print queue
 	public void addJob(String nameOfJob, int numberOfPagesToPrint) {
-		if (isOn) {
-			queue.addJob(nameOfJob, numberOfPagesToPrint);
-		}
-		else {
-			System.out.println("Printer is not powered on. Please turn on the printer first.");
-		}
+		queue.addJob(nameOfJob, numberOfPagesToPrint);
 	}
 
 	// Removes a document from the print queue, given a specific document ID
@@ -153,6 +148,9 @@ public class LaserPrinter {
 				queue    .printJob();
 			} catch (Exception e) {
 				System.out.println(e.getMessage());
+			} finally {
+				printing.powerOff();
+				fuser   .coolDown();
 			}
 		}
 		else {

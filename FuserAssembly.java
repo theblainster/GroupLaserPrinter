@@ -22,13 +22,12 @@ public class FuserAssembly extends AssemblyUnit implements ISimAssembly
    protected void heatUp()
    {
 	  warning(0);
-	  while(currentTemp <= MAX_TEMP)
+	  while(currentTemp < MAX_TEMP)
 	  {
 		  currentTemp += MAX_INCREASE;
-		  System.out.println("Temperature: " + currentTemp);
 		  if(currentTemp > MAX_TEMP)
 		  {
-			  warning(1);
+			  //warning(1);
 			  currentTemp = MAX_TEMP;
 		  }
 	  }
@@ -45,7 +44,7 @@ public class FuserAssembly extends AssemblyUnit implements ISimAssembly
    {
 	  if(errorNumber == 1)
 	  {
-        System.out.println("Can't set temperature above 300 degrees");
+        System.out.println("Can't set temperature above 200 degrees");
 	  }		  
 
       else if(currentTemp <= MIN_TEMP)
