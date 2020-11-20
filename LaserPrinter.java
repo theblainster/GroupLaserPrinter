@@ -1,4 +1,5 @@
 import java.sql.SQLType;
+import java.util.Queue;
 
 public class LaserPrinter {
 	private boolean 		isOn = false;
@@ -151,4 +152,7 @@ public class LaserPrinter {
 			System.out.println("Printer is not powered on. Please turn on the printer first.");
 		}
 	}
+
+	// Reports the list of the documents in the queue
+	public Queue<Document> reportQueue() {return queue.reportQueue();}
 }

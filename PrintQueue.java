@@ -10,8 +10,8 @@ public class PrintQueue implements ISimAssembly {
         return documents.peek().getJobId();
     }
 
-    public void reportQueue() {
-        System.out.println(documents);
+    public Queue<Document> reportQueue() {
+        return documents;
     }
 
     public void cancelJob() {documents.remove();}

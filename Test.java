@@ -60,7 +60,7 @@ public class Test {
 	}
 	
 	public static void reportQueue(LaserPrinter o) {
-		//o.reportQueue();
+		o.reportQueue();
 	}
 	
 	public static void printJob(LaserPrinter o) {
