@@ -21,13 +21,11 @@ public class FuserAssembly extends AssemblyUnit implements ISimAssembly
    // Heat the fuser up
    protected void heatUp()
    {
-	  warning(0);
 	  while(currentTemp < MAX_TEMP)
 	  {
 		  currentTemp += MAX_INCREASE;
 		  if(currentTemp > MAX_TEMP)
 		  {
-			  //warning(1);
 			  currentTemp = MAX_TEMP;
 		  }
 	  }
@@ -37,20 +35,6 @@ public class FuserAssembly extends AssemblyUnit implements ISimAssembly
    protected void coolDown()
    {
       currentTemp = MIN_TEMP;
-   }
-
-   // Gets passed an error number and displays the error which occurred
-   protected void warning(int errorNumber)
-   {
-	  if(errorNumber == 1)
-	  {
-        System.out.println("Can't set temperature above 200 degrees");
-	  }		  
-
-      else if(currentTemp <= MIN_TEMP)
-	  {
-	    System.out.println("Your fuser temperature is too cold");
-	  }
    }
       
    // Sets the current amount of toner

@@ -7,7 +7,7 @@ public class PrintQueue implements ISimAssembly {
     public int  getValue()             {return documents.size();}
 
     public Document nextDoc() {
-        return documents.peek();
+            return documents.peek();
     }
 
     public void reportQueue() {
@@ -37,12 +37,13 @@ public class PrintQueue implements ISimAssembly {
         documents.add(new Document(documents.size(), name, pageCount));
     }
 
-    public void printJob() throws Exception {
-        if (documents.size() != 0) {
+    public void printJob() {
             documents.pop();
-        }
-        else {
-            throw new Exception("No jobs in queue to print.");
+    }
+
+    public void checkForJob() throws Exception {
+        if (nextDoc() == null) {
+            throw new Exception("No jobs in queue to print");
         }
     }
 }

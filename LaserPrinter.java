@@ -140,11 +140,13 @@ public class LaserPrinter {
 	public void printJob() {
 		if (isOn) {
 			try {
+				queue    .checkForJob();
 				paperTray.usePaper(queue.nextDoc().getPageCount());
 				toner    .useToner(queue.nextDoc().getPageCount());
 				fuser    .heatUp  ();
 				printing .powerOn ();
 				printing .usePages(queue.nextDoc().getPageCount());
+				System.out.println("Successfully printed document: " + queue.nextDoc().getName());
 				queue    .printJob();
 			} catch (Exception e) {
 				System.out.println(e.getMessage());

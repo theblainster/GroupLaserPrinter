@@ -27,14 +27,8 @@ public class PrintAssembly extends AssemblyUnit implements ISimAssembly
    {
       if (mirrorSpinning)
       {
-         System.out.println("Mirror spinning down.");
          decreaseMirrorSpin();
          mirrorSpinning = false;
-         System.out.println("\nMirror no longer spinning.");
-      }
-      else
-      {
-         System.out.println("Mirror already stopped.");
       }
    }
 
@@ -43,14 +37,8 @@ public class PrintAssembly extends AssemblyUnit implements ISimAssembly
    {
       if (!mirrorSpinning)
       {
-         System.out.println("Mirror spinning up.");
          increaseMirrorSpin();
          mirrorSpinning = true;
-         System.out.println("\nMirror up to speed.");
-      }
-      else
-      {
-         System.out.println("Mirror already spinning");
       }
    }
    
@@ -65,7 +53,6 @@ public class PrintAssembly extends AssemblyUnit implements ISimAssembly
    {
       while(mirrorRotSpeed < MAX_ROTATION_SPEED) 
       {
-         System.out.print("+");
          mirrorRotSpeed += MIRROR_SPIN_UP_RATE;
       }
    }
@@ -75,7 +62,6 @@ public class PrintAssembly extends AssemblyUnit implements ISimAssembly
    {
       while(mirrorRotSpeed > 0) 
       {
-         System.out.print("-");
          mirrorRotSpeed -= MIRROR_SPIN_DOWN_RATE;
       }
       
@@ -131,16 +117,12 @@ public class PrintAssembly extends AssemblyUnit implements ISimAssembly
 	     {
             System.out.println("WARNING: Drum life below warning");
          }
-         
-         System.out.println("SUCCESSFUL: printed " + number + " sheets.");
-         System.out.println("Total printed sheets: " + sheetsPrinted);
       } 
 
       else 
       {
           throw new Exception("Could not print, drum life too low.");
       }
-      System.out.println("Drum life remaining: " + (DRUM_MAX_LIFE - sheetsPrinted));
    }
    
    // Drum replacement 
