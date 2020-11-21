@@ -31,6 +31,7 @@ public class LaserPrinter {
 			System.out.println("Laser Printer - Starting up.");
 
 			try {
+				display   .poweringOn();
 				paperTray .activate();
 				display   .activate();
 				outputTray.activate();
@@ -49,6 +50,7 @@ public class LaserPrinter {
 			&& printing  .isActive()) {
 				isOn = true;
 				System.out.println("Laser Printer successfully powered up.");
+				display.ready();
 			}
 		}
 	}
@@ -126,7 +128,7 @@ public class LaserPrinter {
 		queue.addJob(nameOfJob, numberOfPagesToPrint);
 	}
 
-	// Removes a document from the print queue, given a specific document ID
+	// Removes the first document from the queue
 	public void cancelJob(){
 		try {
 			queue.checkForJob();
@@ -140,6 +142,7 @@ public class LaserPrinter {
 	// Prints the first document in the queue
 	public void printJob() {
 		if (isOn) {
+			display.resetDisplay();
 			try {
 				queue    .checkForJob();
 				paperTray.usePaper(queue.nextDoc().getPageCount());
@@ -148,12 +151,17 @@ public class LaserPrinter {
 				printing .powerOn ();
 				printing .usePages(queue.nextDoc().getPageCount());
 				System.out.println("Successfully printed document: " + queue.nextDoc().getName());
+				display  .printing();
 				queue    .printJob();
 			} catch (Exception e) {
 				System.out.println(e.getMessage());
+
 			} finally {
 				printing.powerOff();
 				fuser   .coolDown();
+				if (!checkForErrors()) {
+					display.ready();
+				}
 			}
 		}
 		else {
@@ -164,5 +172,37 @@ public class LaserPrinter {
 	// Reports the list of the documents in the queue
 	public void reportQueue() {
 		queue.reportQueue();
+	}
+
+	// Checks for errors or warnings
+	public boolean checkForErrors(){
+		// Checks for low and empty toner
+		boolean isErrors = false;
+		if (toner.tonerIsLow()) {
+			display.tonerWarning();
+			isErrors = true;
+		}
+		if (toner.getValue() == 0){
+			display.tonerError();
+			isErrors = true;
+		}
+
+		// Checks for low or empty toner
+		if (printing.getValue() < printing.DRUM_WARN_LIFE) {
+			display.drumWarning();
+			isErrors = true;
+		}
+		if (printing.getValue() == 0) {
+			display.drumError();
+			isErrors = true;
+		}
+
+		// Checks for general errors
+		if (paperTray.getValue() <= paperTray.LOW_PAPER
+		||  outputTray.outputAssemblyIsFull()){
+			display.generalError();
+			isErrors = true;
+		}
+		return isErrors;
 	}
 }

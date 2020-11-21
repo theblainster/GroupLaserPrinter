@@ -1,8 +1,8 @@
 public class PrintAssembly extends AssemblyUnit implements ISimAssembly
 {
    // Constants
-   final static int DRUM_MAX_LIFE         = 100;
-   final static int DRUM_WARN_LIFE        = DRUM_MAX_LIFE / 10;
+   final static int DRUM_MAX_LIFE         = 10000;
+   final static int DRUM_WARN_LIFE        = 150;
    final static int MAX_ROTATION_SPEED    = 300;
    final static int MIRROR_SPIN_DOWN_RATE = 2;
    final static int MIRROR_SPIN_UP_RATE   = 2;

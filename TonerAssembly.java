@@ -4,7 +4,7 @@ public class TonerAssembly extends AssemblyUnit implements ISimAssembly
    static final int LOW_TONER = 50;  // The value we warn the consumer to replace his toner at
    static final int OUT_TONER = 15;  // The value where we stop printing
    
-   int sheetsRemaining; // Number of sheets able to be printed
+   private int sheetsRemaining; // Number of sheets able to be printed
    
    // Constructor that sets the toner to its max printable.
    TonerAssembly()
@@ -20,16 +20,19 @@ public class TonerAssembly extends AssemblyUnit implements ISimAssembly
    
    // Use the toner in the printer, check if its out of toner
    protected void useToner(int sheetsUsed) throws Exception {
-	  warning(0);
 	  if(sheetsRemaining > sheetsUsed)
 	  {
          sheetsRemaining = sheetsRemaining - sheetsUsed;
 	  }
-	  else{
+	  else {
 		 throw new Exception("Not enough toner.");
-	     //warning(1);
-	     //sheetsRemaining = OUT_TONER;
 	  }
+
+	  // Checks if toner is low
+      if(tonerIsLow())
+      {
+          System.out.println("Your toner level is low");
+      }
    }
    
    // Reload the toner to its maximum
@@ -37,21 +40,11 @@ public class TonerAssembly extends AssemblyUnit implements ISimAssembly
    {
 	   sheetsRemaining = MAX_PRINT;
    }
-   
-   // Gets passed an error number and displays the error which occurred
-   protected void warning(int errorNumber)
-   {
-	  if(errorNumber == 1)
-	  {
-        System.out.println("Out of toner");
-	  }		  
 
-      else if(sheetsRemaining <= LOW_TONER)
-	  {
-	    System.out.println("Your toner level is low");
-	  }
+   public boolean tonerIsLow(){
+       return sheetsRemaining <= LOW_TONER;
    }
-   
+
    // Sets the current amount of toner
    @Override
    public void setValue(int setToner)
