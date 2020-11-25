@@ -1,10 +1,15 @@
-import java.util.*;
+import java.util.LinkedList;
 
 public class PrintQueue implements ISimAssembly {
     private LinkedList<Document> documents = new LinkedList<Document>();
 
+    @Override
     public void setValue(int newValue) {};
-    public int  getValue()             {return documents.size();}
+
+    @Override
+    public int  getValue() {
+        return documents.size();
+    }
 
     public Document nextDoc() {
             return documents.peek();
