@@ -3,13 +3,22 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class TestFX extends Application {
+
+    public static final String paper = "Paper";
+    public static final String toner = "Toner";
+    public static final String fuser = "Fuser";
 
     public static void main(String[] args) {
         launch(args);
@@ -17,63 +26,66 @@ public class TestFX extends Application {
 
     @Override
     public void start (Stage stage) {
-        GridPane  grid = new GridPane();
+
+        // HBox for bottom control buttons
+        Button btPowerOn  = new Button("Power On");
+        Button btPowerOff = new Button("Power Off");
+        Button btExit     = new Button("Click to exit");
+        HBox hBoxControlButtons = new HBox();
+        hBoxControlButtons.setSpacing(12);
+        hBoxControlButtons.getChildren().addAll(btPowerOn, btPowerOff, btExit);
+
+        // VBox for Paper, Toner, and Fuser level
+        int paperLevelNumber = 100;
+        int tonerLevelNumber = 100;
+        int fuserLevelNumber = 100;
+
+        CategoryAxis xAxis         = new CategoryAxis();
+        NumberAxis   yAxis         = new NumberAxis();
+        BarChart<String,Number> bc = new BarChart<String,Number>(xAxis,yAxis);
+        bc.setTitle("Paper, Toner, and Fuser Levels");
+        yAxis.setLabel("Levels");
+
+        XYChart.Series paperLevel = new XYChart.Series();
+        paperLevel.setName("Paper");
+        paperLevel.getData().add(new XYChart.Data(paper, paperLevelNumber));
+
+        XYChart.Series tonerLevel = new XYChart.Series();
+        tonerLevel.setName("Toner");
+        tonerLevel.getData().add(new XYChart.Data(toner, tonerLevelNumber));
+
+        XYChart.Series fuserLevel = new XYChart.Series();
+        fuserLevel.setName("Fuser");
+        fuserLevel.getData().add(new XYChart.Data(fuser, fuserLevelNumber));
+
+        bc.getData().addAll(paperLevel, tonerLevel, fuserLevel);
+
+        VBox vBoxGraph = new VBox();
+        vBoxGraph.getChildren().addAll(bc);
+
+        // GridPane layout
+        GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setMinSize(200, 400);
         grid.setPadding(new Insets(30,30,30,30));
         grid.setHgap(10);
         grid.setVgap(10);
+        grid.add(hBoxControlButtons, 0,1);
+        grid.add(vBoxGraph,0,0);
 
-        Button    btOK = new Button("OK" );
-        Button btNotOK = new Button("Not OK");
-        Button  btFine = new Button("OK");
-        Button  btExit = new Button("Click to exit");
+        // Scene and Stage layouts
+        Scene scene = new Scene(grid, 50, 50);
+        stage.setTitle("My JavaFX Test Program");
+        stage.setWidth (800);
+        stage.setHeight(800);
+        stage.setScene(scene);
+        stage.show();
 
-        VBox vBox = new VBox();
-        vBox.setSpacing(12);
-        vBox.getChildren().addAll(btOK, btNotOK);
-
-        VBox vBox2 = new VBox();
-        vBox2.setSpacing(12);
-        vBox2.getChildren().addAll(btFine, btExit);
-
-        grid.add(vBox, 0, 0);
-        grid.add(vBox2, 0,1);
-
+        // Button events
         var mouseClick = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
-                if (btOK == mouseEvent.getSource()) {
-                    if (btOK.getText().equalsIgnoreCase("OK")) {
-                        btOK.setText("Not OK");
-                    } else {
-                        btOK.setText("OK");
-                    }
-                }
-
-                else if (btNotOK == mouseEvent.getSource()) {
-                    if (btNotOK.getText().equalsIgnoreCase("OK")) {
-                        btNotOK.setText("Not OK");
-                    } else {
-                        btNotOK.setText("OK");
-                    }
-                }
-
-                else if (btFine == mouseEvent.getSource()) {
-                    if (btFine.getText().equalsIgnoreCase("OK")) {
-                        btFine.setText("Not OK");
-                    } else {
-                        btFine.setText("OK");
-                    }
-                }
-
-                if (btOK   .getText().equalsIgnoreCase("Not OK")
-                &&  btNotOK.getText().equalsIgnoreCase("Not OK")
-                &&  btFine .getText().equalsIgnoreCase("Not OK")) {
-                    btOK   .setText("2020!!!");
-                    btNotOK.setText("2020!!!");
-                    btFine .setText("2020!!!");
-                }
+                System.out.println("mouse clicked");
             }
         };
 
@@ -84,16 +96,7 @@ public class TestFX extends Application {
             }
         };
 
-        btOK.addEventFilter(MouseEvent.MOUSE_CLICKED, mouseClick);
-        btNotOK.addEventFilter(MouseEvent.MOUSE_CLICKED, mouseClick);
-        btFine.addEventFilter(MouseEvent.MOUSE_CLICKED, mouseClick);
+        // Button controls
         btExit.addEventFilter(MouseEvent.MOUSE_CLICKED, mouseExit);
-
-        Scene scene = new Scene(grid, 50, 50);
-        stage.setTitle("My JavaFX Test Program");
-        stage.setWidth (400);
-        stage.setHeight(400);
-        stage.setScene(scene);
-        stage.show();
     }
 }
