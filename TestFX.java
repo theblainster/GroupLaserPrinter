@@ -1,4 +1,5 @@
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -8,6 +9,7 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -16,9 +18,14 @@ import javafx.stage.Stage;
 
 public class TestFX extends Application {
 
-    public static final String paper = "Paper";
-    public static final String toner = "Toner";
-    public static final String fuser = "Fuser";
+    public static final String PAPER = "Paper";
+    public static final String TONER = "Toner";
+    public static final String FUSER = "Fuser";
+
+    // Levels for bar chart
+    private int paperLevelNumber = 100;
+    private int tonerLevelNumber = 100;
+    private int fuserLevelNumber = 100;
 
     public static void main(String[] args) {
         launch(args);
@@ -26,42 +33,54 @@ public class TestFX extends Application {
 
     @Override
     public void start (Stage stage) {
-
         // HBox for bottom control buttons
-        Button btPowerOn  = new Button("Power On");
-        Button btPowerOff = new Button("Power Off");
-        Button btExit     = new Button("Click to exit");
-        HBox hBoxControlButtons = new HBox();
+        Button btPowerOn          = new Button("Power On");
+        Button btPowerOff         = new Button("Power Off");
+        Button btExit             = new Button("Click to exit");
+        HBox   hBoxControlButtons = new HBox();
         hBoxControlButtons.setSpacing(12);
         hBoxControlButtons.getChildren().addAll(btPowerOn, btPowerOff, btExit);
 
-        // VBox for Paper, Toner, and Fuser level
-        int paperLevelNumber = 100;
-        int tonerLevelNumber = 100;
-        int fuserLevelNumber = 100;
-
+        // Creates bar chart object
         CategoryAxis xAxis         = new CategoryAxis();
         NumberAxis   yAxis         = new NumberAxis();
         BarChart<String,Number> bc = new BarChart<String,Number>(xAxis,yAxis);
         bc.setTitle("Paper, Toner, and Fuser Levels");
         yAxis.setLabel("Levels");
 
+        // Data for paper level
         XYChart.Series paperLevel = new XYChart.Series();
         paperLevel.setName("Paper");
-        paperLevel.getData().add(new XYChart.Data(paper, paperLevelNumber));
+        paperLevel.getData().add(new XYChart.Data(PAPER, paperLevelNumber));
 
+        // Data for toner level
         XYChart.Series tonerLevel = new XYChart.Series();
         tonerLevel.setName("Toner");
-        tonerLevel.getData().add(new XYChart.Data(toner, tonerLevelNumber));
+        tonerLevel.getData().add(new XYChart.Data(TONER, tonerLevelNumber));
 
+        // Data for fuser level
         XYChart.Series fuserLevel = new XYChart.Series();
         fuserLevel.setName("Fuser");
-        fuserLevel.getData().add(new XYChart.Data(fuser, fuserLevelNumber));
+        fuserLevel.getData().add(new XYChart.Data(FUSER, fuserLevelNumber));
 
+        // Adds all data levels to bar chart object
         bc.getData().addAll(paperLevel, tonerLevel, fuserLevel);
 
+
+        // Buttons for adding more to paper, toner, and/or fuser levels
+        Button    btAddPaper     = new Button   ("Add Paper");
+        Button    btAddToner     = new Button   ("Add Toner");
+        Button    btReplaceFuser = new Button   ("Replace Fuser");
+        TextField txNumberToAdd  = new TextField();
+
+        // HBox for bottom control buttons
+        HBox hBoxAddLevels = new HBox();
+        hBoxAddLevels.setSpacing(12);
+        hBoxAddLevels.getChildren().addAll(btAddPaper, btAddToner, btReplaceFuser, txNumberToAdd);
+
+        // VBox for Paper, Toner, and Fuser levels; and buttons to add more to these levels
         VBox vBoxGraph = new VBox();
-        vBoxGraph.getChildren().addAll(bc);
+        vBoxGraph.getChildren().addAll(bc, hBoxAddLevels);
 
         // GridPane layout
         GridPane grid = new GridPane();
@@ -81,14 +100,8 @@ public class TestFX extends Application {
         stage.setScene(scene);
         stage.show();
 
-        // Button events
-        var mouseClick = new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                System.out.println("mouse clicked");
-            }
-        };
-
+        // BUTTON EVENTS
+        // Exit button
         var mouseExit = new EventHandler<MouseEvent>() {
             @Override
             public void handle (MouseEvent event) {
@@ -96,7 +109,39 @@ public class TestFX extends Application {
             }
         };
 
+        // Add paper button
+        var addPaperClicked = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                paperLevelNumber += Integer.parseInt(txNumberToAdd.getText());
+                paperLevel.getData().removeAll();
+                paperLevel.getData().add(new XYChart.Data(PAPER, paperLevelNumber));
+            }
+        };
+
+        // Add toner button
+        var addTonerClicked = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle (MouseEvent event) {
+                tonerLevelNumber += Integer.parseInt(txNumberToAdd.getText());
+                tonerLevel.getData().removeAll();
+                tonerLevel.getData().add(new XYChart.Data(TONER, tonerLevelNumber));
+            }
+        };
+
+        var replaceFunerClicked = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle (MouseEvent event) {
+                fuserLevelNumber = 200;
+                fuserLevel.getData().removeAll();
+                fuserLevel.getData().add(new XYChart.Data(FUSER, fuserLevelNumber));
+            }
+        };
+
         // Button controls
-        btExit.addEventFilter(MouseEvent.MOUSE_CLICKED, mouseExit);
+        btExit        .addEventFilter(MouseEvent.MOUSE_CLICKED, mouseExit);
+        btAddPaper    .addEventFilter(MouseEvent.MOUSE_CLICKED, addPaperClicked);
+        btAddToner    .addEventFilter(MouseEvent.MOUSE_CLICKED, addTonerClicked);
+        btReplaceFuser.addEventFilter(MouseEvent.MOUSE_CLICKED, replaceFunerClicked);
     }
 }
