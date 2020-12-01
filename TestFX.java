@@ -15,17 +15,26 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.scene.text.*;
+import javafx.scene.control.Label;
+
 
 public class TestFX extends Application {
 
-    public static final String PAPER = "Paper";
-    public static final String TONER = "Toner";
-    public static final String FUSER = "Fuser";
+    public static final String PAPER    = "Paper";
+    public static final String TONER    = "Toner";
+    public static final String FUSER    = "Fuser";
+
+
 
     // Levels for bar chart
     private int paperLevelNumber = 100;
     private int tonerLevelNumber = 100;
     private int fuserLevelNumber = 100;
+	
+	// Fuser Temperature when printer is off
+	private int fuserTemp        = 0;
+	private Text fuserText = new Text(fuserTemp + " Celcius");
 
     public static void main(String[] args) {
         launch(args);
@@ -129,7 +138,7 @@ public class TestFX extends Application {
             }
         };
 
-        var replaceFunerClicked = new EventHandler<MouseEvent>() {
+        var replaceFuserClicked = new EventHandler<MouseEvent>() {
             @Override
             public void handle (MouseEvent event) {
                 fuserLevelNumber = 200;
@@ -142,6 +151,64 @@ public class TestFX extends Application {
         btExit        .addEventFilter(MouseEvent.MOUSE_CLICKED, mouseExit);
         btAddPaper    .addEventFilter(MouseEvent.MOUSE_CLICKED, addPaperClicked);
         btAddToner    .addEventFilter(MouseEvent.MOUSE_CLICKED, addTonerClicked);
-        btReplaceFuser.addEventFilter(MouseEvent.MOUSE_CLICKED, replaceFunerClicked);
+        btReplaceFuser.addEventFilter(MouseEvent.MOUSE_CLICKED, replaceFuserClicked);
+		
+		
+		
+		//FUSER CONTROLS
+		
+		// Fuser Temperature
+		Button btThickPaper = new Button("Thick Paper");
+		Button btNormalPaper = new Button("Normal Paper");
+		
+		// Fuser Label
+	    Label fuserLabel = new Label("Fuser Information");
+		fuserText.setFont(Font.font("New Times Roman", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 40));
+		
+		
+		// Thick paper button
+		var thickPaperClicked = new EventHandler<MouseEvent>() {
+			@Override
+			public void handle (MouseEvent event) {
+			fuserTemp = 190;
+			fuserText.setText(fuserTemp + " Celcius");
+			btNormalPaper.setDisable(false);
+			btThickPaper.setDisable(true);
+			}
+			
+		};
+			
+			
+		// Normal paper button
+		var normalPaperClicked = new EventHandler<MouseEvent>() {
+			@Override
+			public void handle (MouseEvent event) {
+			fuserTemp = 175;
+			fuserText.setText(fuserTemp + " Celcius");
+			btNormalPaper.setDisable(true);
+			btThickPaper.setDisable(false);
+			}
+		};
+		
+		// The horizontal box that holds the buttons
+		HBox fuserButtons = new HBox();
+		fuserButtons.setSpacing (50);
+		fuserButtons.setAlignment(Pos.CENTER);
+		fuserButtons.getChildren().addAll(btThickPaper, btNormalPaper);
+		
+		
+		// The vertical box that displays the label, text, and buttons
+		VBox fuserLayout = new VBox(10);
+		fuserLayout.getChildren().addAll(fuserLabel, fuserText, fuserButtons);
+		
+		
+		// Add Fuser to the Grid.
+		grid.add(fuserLayout,10,0);
+		
+		
+		// Fuser button controls
+		btNormalPaper.addEventFilter(MouseEvent.MOUSE_CLICKED, normalPaperClicked);
+        btThickPaper .addEventFilter(MouseEvent.MOUSE_CLICKED, thickPaperClicked);
+	
     }
 }
