@@ -25,15 +25,13 @@ public class TestFX extends Application {
     public static final String TONER    = "Toner";
     public static final String FUSER    = "Fuser";
 
-
-
     // Levels for bar chart
     private int paperLevelNumber = 100;
     private int tonerLevelNumber = 100;
     private int fuserLevelNumber = 100;
 	
 	// Fuser Temperature when printer is off
-	private int fuserTemp        = 0;
+	private int  fuserTemp = 0;
 	private Text fuserText = new Text(fuserTemp + " Celcius");
 
     public static void main(String[] args) {
@@ -80,7 +78,7 @@ public class TestFX extends Application {
         Button    btAddPaper     = new Button   ("Add Paper");
         Button    btAddToner     = new Button   ("Add Toner");
         Button    btReplaceFuser = new Button   ("Replace Fuser");
-        TextField txNumberToAdd  = new TextField();
+        TextField txNumberToAdd  = new TextField("50");
 
         // HBox for bottom control buttons
         HBox hBoxAddLevels = new HBox();
@@ -104,7 +102,7 @@ public class TestFX extends Application {
         // Scene and Stage layouts
         Scene scene = new Scene(grid, 50, 50);
         stage.setTitle("My JavaFX Test Program");
-        stage.setWidth (800);
+        stage.setWidth (1200);
         stage.setHeight(800);
         stage.setScene(scene);
         stage.show();
@@ -158,7 +156,7 @@ public class TestFX extends Application {
 	//FUSER CONTROLS
 
 	// Fuser Temperature
-	Button btThickPaper = new Button("Thick Paper");
+	Button btThickPaper  = new Button("Thick Paper");
 	Button btNormalPaper = new Button("Normal Paper");
 
 	// Fuser Label
@@ -171,9 +169,9 @@ public class TestFX extends Application {
 		@Override
 		public void handle (MouseEvent event) {
 		fuserTemp = 190;
-		fuserText.setText(fuserTemp + " Celcius");
+		fuserText    .setText   (fuserTemp + " Celcius");
 		btNormalPaper.setDisable(false);
-		btThickPaper.setDisable(true);
+		btThickPaper. setDisable(true);
 		}
 
 	};
@@ -184,9 +182,9 @@ public class TestFX extends Application {
 		@Override
 		public void handle (MouseEvent event) {
 		fuserTemp = 175;
-		fuserText.setText(fuserTemp + " Celcius");
+		fuserText    .setText(fuserTemp + " Celcius");
 		btNormalPaper.setDisable(true);
-		btThickPaper.setDisable(false);
+		btThickPaper .setDisable(false);
 		}
 	};
 
@@ -202,8 +200,8 @@ public class TestFX extends Application {
 	fuserLayout.getChildren().addAll(fuserLabel, fuserText, fuserButtons);
 
 
-	// Add Fuser to the Grid.
-	grid.add(fuserLayout,10,0);
+	// Add Fuser to the Grid
+	grid.add(fuserLayout,2,0);
 
 
 	// Fuser button controls
