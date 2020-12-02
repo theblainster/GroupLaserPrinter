@@ -23,7 +23,11 @@ public class LaserPrinter {
 	
 	// Body of logic
 
-	// TUrns on the printer
+	public boolean printerIsOn(){
+		return isOn;
+	}
+
+	// Turns on the printer
 	public void powerOn() {
 		if(isOn) {
 			System.out.println("Printer is already on.");
