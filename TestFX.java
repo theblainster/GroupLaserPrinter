@@ -34,10 +34,12 @@ public class TestFX extends Application {
     private int paperLevelNumber  = 100;
     private int tonerLevelNumber  = 100;
     private int fuserLevelNumber  = 100;
+	
+	// Levels (numbers) for status report
 	private int paperLevelWarning = MAX_PAPER_LEVEL / 10;
 	private int tonerLevelWarning = MAX_TONER_LEVEL / 10;
 	private int fuserLevelWarning = MAX_FUSER_LEVEL / 10;
-
+	private double errorCode         = 0;
 
     // Levels (percentages) for bar chart
     private int paperLevelPercent = (int) (100 * ((float) paperLevelNumber / (float) MAX_PAPER_LEVEL));
@@ -377,6 +379,25 @@ public class TestFX extends Application {
 			drumLED.setStroke(Color.GREEN);
 			drumLED.setFill(Color.GREEN);
 		}
+		
+		if(isError())
+		{
+			generalLED.setStroke(Color.RED);
+			generalLED.setFill(Color.RED);
+		}
 	
+	}
+	
+	// Set the error number
+	public void setError(int value) 
+	{
+		errorCode = value;
+	}
+	
+	// Gets the error
+	public boolean isError() 
+	{
+		errorCode = Math.floor(Math.random() * 2);
+		return errorCode > 0;
 	}
 }
