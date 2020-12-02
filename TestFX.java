@@ -16,6 +16,8 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.scene.text.Text;
 import javafx.scene.control.Label;
+import javafx.scene.shape.Circle;
+import javafx.scene.paint.Color;
 
 
 public class TestFX extends Application {
@@ -28,15 +30,24 @@ public class TestFX extends Application {
     public static final int DEFAULT_FUSER_TEMP = 0;
     public static final int PAPER_TO_ADD       = 50;
 
-    // Levels (numbers) for bar chart
-    private int paperLevelNumber = 100;
-    private int tonerLevelNumber = 100;
-    private int fuserLevelNumber = 100;
+    // Levels (numbers) for bar chart 
+    private int paperLevelNumber  = 100;
+    private int tonerLevelNumber  = 100;
+    private int fuserLevelNumber  = 100;
+	private int paperLevelWarning = MAX_PAPER_LEVEL / 10;
+	private int tonerLevelWarning = MAX_TONER_LEVEL / 10;
+	private int fuserLevelWarning = MAX_FUSER_LEVEL / 10;
+
 
     // Levels (percentages) for bar chart
     private int paperLevelPercent = (int) (100 * ((float) paperLevelNumber / (float) MAX_PAPER_LEVEL));
     private int tonerLevelPercent = (int) (100 * ((float) tonerLevelNumber / (float) MAX_TONER_LEVEL));
     private int fuserLevelPercent = (int) (100 * ((float) fuserLevelNumber / (float) MAX_FUSER_LEVEL));
+
+    // Current Status
+	private Circle tonerLED   = new Circle();
+	private Circle drumLED    = new Circle();
+	private Circle generalLED = new Circle();
 	
 	// Starting Fuser Temperature
 	private int  fuserTemp = DEFAULT_FUSER_TEMP;
@@ -103,7 +114,8 @@ public class TestFX extends Application {
                 paperLevelPercent = (int) (100 * ((float) paperLevelNumber / (float) MAX_PAPER_LEVEL));
                 paperLevel.getData().removeAll();
                 paperLevel.getData().add(new XYChart.Data("Paper", paperLevelPercent));
-            }
+				LEDRefresh();
+			}
         };
 
         // Replace toner button event
@@ -114,7 +126,8 @@ public class TestFX extends Application {
                 tonerLevelPercent = (int) (100 * ((float) tonerLevelNumber / (float) MAX_TONER_LEVEL));
                 tonerLevel.getData().removeAll();
                 tonerLevel.getData().add(new XYChart.Data("Toner", tonerLevelPercent));
-            }
+				LEDRefresh();
+			}
         };
 
         // Replace fuser button event
@@ -125,7 +138,8 @@ public class TestFX extends Application {
                 fuserLevelPercent = (int) (100 * ((float) fuserLevelNumber / (float) MAX_FUSER_LEVEL));
                 fuserLevel.getData().removeAll();
                 fuserLevel.getData().add(new XYChart.Data("Fuser", fuserLevelPercent));
-            }
+				LEDRefresh();
+			}
         };
 
         // Button controls for graph
@@ -203,6 +217,7 @@ public class TestFX extends Application {
                 btPowerOn    .setDisable(true);
                 btNormalPaper.setDisable(false);
                 btThickPaper .setDisable(true);
+				LEDRefresh();
                 laserPrinter .powerOn();
                 normalPaperClicked.handle(event);
             }
@@ -217,6 +232,12 @@ public class TestFX extends Application {
                 btNormalPaper.setDisable(true);
                 btThickPaper .setDisable(true);
                 setFuserTemp(0);
+				tonerLED.setStroke(Color.GRAY);
+			    tonerLED.setFill(Color.GRAY);
+				drumLED.setStroke(Color.GRAY);
+			    drumLED.setFill(Color.GRAY);
+				generalLED.setStroke(Color.GRAY);
+			    generalLED.setFill(Color.GRAY);
                 laserPrinter.powerOff();
 
             }
@@ -235,13 +256,53 @@ public class TestFX extends Application {
         btPowerOff.addEventFilter(MouseEvent.MOUSE_CLICKED, mousePowerOff);
         btExit    .addEventFilter(MouseEvent.MOUSE_CLICKED, mouseExit);
 
-        // LAYOUT
+
+		// STATUS
+		// LED Indicators
+		Label statusLabel     = new Label("Status");
+		Label tonerLEDLabel   = new Label("Toner");
+		Label drumLEDLabel    = new Label("Drum");
+		Label generalLEDLabel = new Label("Ready");
+		
+		// Toner LED
+		tonerLED.setRadius(5);
+		HBox tonerLocation = new HBox();
+		tonerLocation.setSpacing(10);
+		tonerLocation.setAlignment(Pos.CENTER);
+		tonerLocation.getChildren().addAll(tonerLEDLabel, tonerLED);
+		tonerLED.setStroke(Color.GRAY);
+		tonerLED.setFill(Color.GRAY);
+		
+		// Drum LED
+		drumLED.setRadius(5);
+		HBox drumLocation = new HBox();
+		drumLocation.setSpacing(10);
+		drumLocation.setAlignment(Pos.CENTER);
+		drumLocation.getChildren().addAll(drumLEDLabel, drumLED);
+		drumLED.setStroke(Color.GRAY);
+		drumLED.setFill(Color.GRAY);
+		
+		// General LED 
+		generalLED.setRadius(5);
+		HBox generalLocation = new HBox();
+		generalLocation.setSpacing(10);
+		generalLocation.setAlignment(Pos.CENTER);
+		generalLocation.getChildren().addAll(generalLEDLabel, generalLED);
+		generalLED.setStroke(Color.GRAY);
+		generalLED.setFill(Color.GRAY);
+		
+		// Vertical to display the status of the toner, drum, and general functions of the printer
+		VBox statusLayout = new VBox(10);
+		statusLayout.getChildren().addAll(statusLabel, tonerLocation, drumLocation, generalLocation);
+		
+		
+		// LAYOUT
         // HBox for all sections of app
         HBox hBoxLayout = new HBox();
         hBoxLayout.setAlignment(Pos.CENTER);
 
         // Adds
-        hBoxLayout.getChildren().addAll(vBoxGraph, vBoxFuserLayout);
+        hBoxLayout.getChildren().addAll(vBoxGraph, vBoxFuserLayout, statusLayout);
 
         // VBox of entire application
         VBox vBoxPrinter = new VBox();
@@ -262,4 +323,60 @@ public class TestFX extends Application {
         fuserTemp = temperature;
         fuserText.setText(fuserTemp + " Celsius");
     }
+	
+	// Check to see if there is a potential problem
+	private void LEDRefresh(){
+		
+		//Check if the toner level is to low
+		if(tonerLevelNumber < 0)
+		{
+			tonerLED.setStroke(Color.RED);
+			tonerLED.setFill(Color.RED);
+		}
+		else if(tonerLevelNumber < tonerLevelWarning)
+		{
+			tonerLED.setStroke(Color.YELLOW);
+			tonerLED.setFill(Color.YELLOW);
+		}
+		else
+		{
+			tonerLED.setStroke(Color.GREEN);
+			tonerLED.setFill(Color.GREEN);
+		}
+		
+		// Check if the paper level is to low
+		if(paperLevelNumber < 0)
+		{
+			generalLED.setStroke(Color.RED);
+			generalLED.setFill(Color.RED);
+		}
+		else if(paperLevelNumber < paperLevelWarning)
+		{
+			generalLED.setStroke(Color.YELLOW);
+			generalLED.setFill(Color.YELLOW);
+		}		
+		else
+		{
+			generalLED.setStroke(Color.GREEN);
+			generalLED.setFill(Color.GREEN);
+		}
+		
+		// Check if the fuser level is to low
+		if(fuserLevelNumber < 0)
+		{
+		   drumLED.setStroke(Color.RED);
+		   drumLED.setFill(Color.RED);
+		}
+	   else if(fuserLevelNumber < fuserLevelWarning)
+	   {
+			drumLED.setStroke(Color.YELLOW);
+			drumLED.setFill(Color.YELLOW);
+		}
+		else
+		{
+			drumLED.setStroke(Color.GREEN);
+			drumLED.setFill(Color.GREEN);
+		}
+	
+	}
 }
