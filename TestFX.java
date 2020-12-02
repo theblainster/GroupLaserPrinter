@@ -40,14 +40,6 @@ public class TestFX extends Application {
 
     @Override
     public void start (Stage stage) {
-        // HBox for bottom control buttons
-        Button btPowerOn          = new Button("Power On");
-        Button btPowerOff         = new Button("Power Off");
-        Button btExit             = new Button("Click to exit");
-        HBox   hBoxControlButtons = new HBox();
-        hBoxControlButtons.setSpacing(12);
-        hBoxControlButtons.getChildren().addAll(btPowerOn, btPowerOff, btExit);
-
         // Creates bar chart object
         CategoryAxis xAxis         = new CategoryAxis();
         NumberAxis   yAxis         = new NumberAxis();
@@ -96,7 +88,7 @@ public class TestFX extends Application {
         grid.setPadding(new Insets(30,30,30,30));
         grid.setHgap(10);
         grid.setVgap(10);
-        grid.add(hBoxControlButtons, 0,1);
+
         grid.add(vBoxGraph,0,0);
 
         // Scene and Stage layouts
@@ -108,14 +100,6 @@ public class TestFX extends Application {
         stage.show();
 
         // BUTTON EVENTS
-        // Exit button
-        var mouseExit = new EventHandler<MouseEvent>() {
-            @Override
-            public void handle (MouseEvent event) {
-                stage.close();
-            }
-        };
-
         // Add paper button
         var addPaperClicked = new EventHandler<MouseEvent>() {
             @Override
@@ -146,67 +130,91 @@ public class TestFX extends Application {
         };
 
         // Button controls
-        btExit        .addEventFilter(MouseEvent.MOUSE_CLICKED, mouseExit);
         btAddPaper    .addEventFilter(MouseEvent.MOUSE_CLICKED, addPaperClicked);
         btAddToner    .addEventFilter(MouseEvent.MOUSE_CLICKED, addTonerClicked);
         btReplaceFuser.addEventFilter(MouseEvent.MOUSE_CLICKED, replaceFuserClicked);
 		
 		
 
-	//FUSER CONTROLS
+        //FUSER CONTROLS
 
-	// Fuser Temperature
-	Button btThickPaper  = new Button("Thick Paper");
-	Button btNormalPaper = new Button("Normal Paper");
+        // Fuser Temperature
+        Button btThickPaper  = new Button("Thick Paper");
+        Button btNormalPaper = new Button("Normal Paper");
 
-	// Fuser Label
-	Label fuserLabel = new Label("Fuser Information");
-	fuserText.setFont(Font.font("New Times Roman", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 40));
-
-
-	// Thick paper button
-	var thickPaperClicked = new EventHandler<MouseEvent>() {
-		@Override
-		public void handle (MouseEvent event) {
-		fuserTemp = 190;
-		fuserText    .setText   (fuserTemp + " Celcius");
-		btNormalPaper.setDisable(false);
-		btThickPaper. setDisable(true);
-		}
-
-	};
+        // Fuser Label
+        Label fuserLabel = new Label("Fuser Information");
+        fuserText.setFont(Font.font("New Times Roman", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 40));
 
 
-	// Normal paper button
-	var normalPaperClicked = new EventHandler<MouseEvent>() {
-		@Override
-		public void handle (MouseEvent event) {
-		fuserTemp = 175;
-		fuserText    .setText(fuserTemp + " Celcius");
-		btNormalPaper.setDisable(true);
-		btThickPaper .setDisable(false);
-		}
-	};
+        // Thick paper button
+        var thickPaperClicked = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle (MouseEvent event) {
+            fuserTemp = 190;
+            fuserText    .setText   (fuserTemp + " Celcius");
+            btNormalPaper.setDisable(false);
+            btThickPaper. setDisable(true);
+            }
 
-	// The horizontal box that holds the buttons
-	HBox fuserButtons = new HBox();
-	fuserButtons.setSpacing (50);
-	fuserButtons.setAlignment(Pos.CENTER);
-	fuserButtons.getChildren().addAll(btThickPaper, btNormalPaper);
+        };
 
 
-	// The vertical box that displays the label, text, and buttons
-	VBox fuserLayout = new VBox(10);
-	fuserLayout.getChildren().addAll(fuserLabel, fuserText, fuserButtons);
+        // Normal paper button
+        var normalPaperClicked = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle (MouseEvent event) {
+            fuserTemp = 175;
+            fuserText    .setText(fuserTemp + " Celcius");
+            btNormalPaper.setDisable(true);
+            btThickPaper .setDisable(false);
+            }
+        };
+
+        // The horizontal box that holds the buttons
+        HBox fuserButtons = new HBox();
+        fuserButtons.setSpacing (50);
+        fuserButtons.setAlignment(Pos.CENTER);
+        fuserButtons.getChildren().addAll(btThickPaper, btNormalPaper);
 
 
-	// Add Fuser to the Grid
-	grid.add(fuserLayout,2,0);
+        // The vertical box that displays the label, text, and buttons
+        VBox fuserLayout = new VBox(10);
+        fuserLayout.getChildren().addAll(fuserLabel, fuserText, fuserButtons);
 
 
-	// Fuser button controls
-	btNormalPaper.addEventFilter(MouseEvent.MOUSE_CLICKED, normalPaperClicked);
-	btThickPaper .addEventFilter(MouseEvent.MOUSE_CLICKED, thickPaperClicked);
-	
+        // Add Fuser to the Grid
+        grid.add(fuserLayout,2,0);
+
+
+        // Fuser button controls
+        btNormalPaper.addEventFilter(MouseEvent.MOUSE_CLICKED, normalPaperClicked);
+        btThickPaper .addEventFilter(MouseEvent.MOUSE_CLICKED, thickPaperClicked);
+
+
+
+        // PRINTER CONTROL BUTTONS
+
+        // HBox for bottom control buttons
+        Button btPowerOn          = new Button("Power On");
+        Button btPowerOff         = new Button("Power Off");
+        Button btExit             = new Button("Click to exit");
+        HBox   hBoxControlButtons = new HBox();
+        hBoxControlButtons.setSpacing(12);
+        hBoxControlButtons.getChildren().addAll(btPowerOn, btPowerOff, btExit);
+
+        // Adds the printer control buttons to the grid
+        grid.add(hBoxControlButtons, 0,1);
+
+        // Exit button event
+        var mouseExit = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle (MouseEvent event) {
+                stage.close();
+            }
+        };
+
+        // Assigns the exit button even to the exit button
+        btExit.addEventFilter(MouseEvent.MOUSE_CLICKED, mouseExit);
     }
 }
