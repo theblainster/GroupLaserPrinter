@@ -1,4 +1,6 @@
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -7,6 +9,7 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -39,7 +42,7 @@ public class TestFX extends Application {
 	private int paperLevelWarning = MAX_PAPER_LEVEL / 10;
 	private int tonerLevelWarning = MAX_TONER_LEVEL / 10;
 	private int fuserLevelWarning = MAX_FUSER_LEVEL / 10;
-	private double errorCode         = 0;
+	private double errorCode      = 0;
 
     // Levels (percentages) for bar chart
     private int paperLevelPercent = (int) (100 * ((float) paperLevelNumber / (float) MAX_PAPER_LEVEL));
@@ -95,11 +98,12 @@ public class TestFX extends Application {
         // HBox for bottom control buttons
         HBox hBoxAddLevels = new HBox();
         hBoxAddLevels.setSpacing(12);
+        hBoxAddLevels.setAlignment(Pos.CENTER);
         hBoxAddLevels.getChildren().addAll(btAddPaper, btReplaceToner, btReplaceFuser);
 
         // VBox for Paper, Toner, and Fuser levels; and buttons to add more to these levels
-        VBox vBoxGraph = new VBox();
-        vBoxGraph.getChildren().addAll(barChart, hBoxAddLevels);
+        VBox vBoxGraphLayout = new VBox();
+        vBoxGraphLayout.getChildren().addAll(barChart, hBoxAddLevels);
 
         // Button events for graph
         // Add paper button event
@@ -200,28 +204,30 @@ public class TestFX extends Application {
         // PRINTER CONTROL BUTTONS
 
         // Bottom control buttons
-        Button btPowerOn          = new Button("Power On");
-        Button btPowerOff         = new Button("Power Off");
-        Button btExit             = new Button("Click to exit");
-        btPowerOff.setDisable(true);
+        Button btPowerOn      = new Button("Power On");
+        Button btPowerOff     = new Button("Power Off");
+        Button btRemoveOutput = new Button("Remove Output");
+        Button btClearErrors  = new Button("Clear All Errors");
+        Button btExit         = new Button("Click to exit");
+        btPowerOff   .setDisable(true);
+        btClearErrors.setDisable(true);
 
         // HBox for bottom control buttons
         HBox hBoxControlButtons = new HBox();
         hBoxControlButtons.setSpacing(12);
-        hBoxControlButtons.getChildren().addAll(btPowerOn, btPowerOff, btExit);
+        hBoxControlButtons.getChildren().addAll(btPowerOn, btPowerOff, btRemoveOutput, btClearErrors, btExit);
         hBoxControlButtons.setAlignment(Pos.CENTER);
 
         // Power On button event
         var mousePowerOn = new EventHandler<MouseEvent>() {
             @Override
             public void handle (MouseEvent event) {
-                btPowerOff   .setDisable(false);
-                btPowerOn    .setDisable(true);
-                btNormalPaper.setDisable(false);
-                btThickPaper .setDisable(true);
-				LEDRefresh();
-                laserPrinter .powerOn();
+                btPowerOff        .setDisable(false);
+                btPowerOn         .setDisable(true);
+                btClearErrors     .setDisable(false);
                 normalPaperClicked.handle(event);
+                laserPrinter.powerOn();
+                LEDRefresh();
             }
         };
 
@@ -231,17 +237,29 @@ public class TestFX extends Application {
             public void handle (MouseEvent event) {
                 btPowerOff   .setDisable(true);
                 btPowerOn    .setDisable(false);
+                btClearErrors.setDisable(true);
                 btNormalPaper.setDisable(true);
                 btThickPaper .setDisable(true);
                 setFuserTemp(0);
-				tonerLED.setStroke(Color.GRAY);
-			    tonerLED.setFill(Color.GRAY);
-				drumLED.setStroke(Color.GRAY);
-			    drumLED.setFill(Color.GRAY);
-				generalLED.setStroke(Color.GRAY);
-			    generalLED.setFill(Color.GRAY);
                 laserPrinter.powerOff();
+                LEDRefresh();
+            }
+        };
 
+        // Remove Output button event
+        var mouseRemoveOutput = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                System.out.println("Output removed");
+            }
+        };
+
+        // Clear Errors button event
+        var mouseClearErrors = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                setError(0);
+                LEDRefresh();
             }
         };
 
@@ -254,9 +272,11 @@ public class TestFX extends Application {
         };
 
         // Assigns the control button events to the buttons
-        btPowerOn .addEventFilter(MouseEvent.MOUSE_CLICKED, mousePowerOn);
-        btPowerOff.addEventFilter(MouseEvent.MOUSE_CLICKED, mousePowerOff);
-        btExit    .addEventFilter(MouseEvent.MOUSE_CLICKED, mouseExit);
+        btPowerOn     .addEventFilter(MouseEvent.MOUSE_CLICKED, mousePowerOn);
+        btPowerOff    .addEventFilter(MouseEvent.MOUSE_CLICKED, mousePowerOff);
+        btRemoveOutput.addEventFilter(MouseEvent.MOUSE_CLICKED, mouseRemoveOutput);
+        btClearErrors .addEventFilter(MouseEvent.MOUSE_CLICKED, mouseClearErrors);
+        btExit        .addEventFilter(MouseEvent.MOUSE_CLICKED, mouseExit);
 
 
 		// STATUS
@@ -294,22 +314,43 @@ public class TestFX extends Application {
 		generalLED.setFill(Color.GRAY);
 		
 		// Vertical to display the status of the toner, drum, and general functions of the printer
-		VBox statusLayout = new VBox(10);
-		statusLayout.getChildren().addAll(statusLabel, tonerLocation, drumLocation, generalLocation);
-		
+		VBox vBoxStatusLayout = new VBox(10);
+		vBoxStatusLayout.getChildren().addAll(statusLabel, tonerLocation, drumLocation, generalLocation);
+
+		// PRINT QUEUE
+        // Print queue pieces
+        ListView printQueue  = new ListView();
+        Button   btPrintJob  = new Button("Print");
+        Button   btCancelJob = new Button("Cancel");
+        Button   btAddJob    = new Button("Add");
+        Button   btClearJobs = new Button("Clear");
+
+        // Layout for print queue
+        VBox vBoxQueueLayout = new VBox();
+        HBox queueButtons    = new HBox();
+        vBoxQueueLayout.setSpacing(12);
+        queueButtons   .setAlignment(Pos.CENTER);
+        queueButtons   .setSpacing(12);
+        queueButtons   .getChildren().addAll(btPrintJob, btCancelJob, btAddJob, btClearJobs);
+
+        // Temporary jobs in list
+        ObservableList<String> items = FXCollections.observableArrayList ("Job #1", "Job #2", "Job #3");
+        printQueue.setItems(items);
+        vBoxQueueLayout.getChildren().addAll(printQueue, queueButtons);
 		
 		// LAYOUT
         // HBox for all sections of app
         HBox hBoxLayout = new HBox();
         hBoxLayout.setAlignment(Pos.CENTER);
+        hBoxLayout.setSpacing(12);
 
         // Adds
-        hBoxLayout.getChildren().addAll(vBoxGraph, vBoxFuserLayout, statusLayout);
+        hBoxLayout.getChildren().addAll(vBoxGraphLayout, vBoxFuserLayout, vBoxQueueLayout, vBoxStatusLayout);
 
         // VBox of entire application
         VBox vBoxPrinter = new VBox();
         vBoxPrinter.setAlignment(Pos.CENTER);
-        vBoxPrinter.setSpacing(12);
+        vBoxPrinter.setSpacing(30);
         vBoxPrinter.getChildren().addAll(hBoxLayout, hBoxControlButtons);
 
         // Scene and Stage layouts
@@ -328,64 +369,56 @@ public class TestFX extends Application {
 	
 	// Check to see if there is a potential problem
 	private void LEDRefresh(){
-		
-		//Check if the toner level is to low
-		if(tonerLevelNumber < 0)
-		{
-			tonerLED.setStroke(Color.RED);
-			tonerLED.setFill(Color.RED);
-		}
-		else if(tonerLevelNumber < tonerLevelWarning)
-		{
-			tonerLED.setStroke(Color.YELLOW);
-			tonerLED.setFill(Color.YELLOW);
-		}
-		else
-		{
-			tonerLED.setStroke(Color.GREEN);
-			tonerLED.setFill(Color.GREEN);
-		}
-		
-		// Check if the paper level is to low
-		if(paperLevelNumber < 0)
-		{
-			generalLED.setStroke(Color.RED);
-			generalLED.setFill(Color.RED);
-		}
-		else if(paperLevelNumber < paperLevelWarning)
-		{
-			generalLED.setStroke(Color.YELLOW);
-			generalLED.setFill(Color.YELLOW);
-		}		
-		else
-		{
-			generalLED.setStroke(Color.GREEN);
-			generalLED.setFill(Color.GREEN);
-		}
-		
-		// Check if the fuser level is to low
-		if(fuserLevelNumber < 0)
-		{
-		   drumLED.setStroke(Color.RED);
-		   drumLED.setFill(Color.RED);
-		}
-	   else if(fuserLevelNumber < fuserLevelWarning)
-	   {
-			drumLED.setStroke(Color.YELLOW);
-			drumLED.setFill(Color.YELLOW);
-		}
-		else
-		{
-			drumLED.setStroke(Color.GREEN);
-			drumLED.setFill(Color.GREEN);
-		}
-		
-		if(isError())
-		{
-			generalLED.setStroke(Color.RED);
-			generalLED.setFill(Color.RED);
-		}
-	
+		if (laserPrinter.printerIsOn()) {
+            //Check if the toner level is to low
+            if (tonerLevelNumber < 0) {
+                tonerLED.setStroke(Color.RED);
+                tonerLED.setFill(Color.RED);
+            } else if (tonerLevelNumber < tonerLevelWarning) {
+                tonerLED.setStroke(Color.YELLOW);
+                tonerLED.setFill(Color.YELLOW);
+            } else {
+                tonerLED.setStroke(Color.GREEN);
+                tonerLED.setFill(Color.GREEN);
+            }
+
+            // Check if the paper level is to low
+            if (paperLevelNumber < 0) {
+                generalLED.setStroke(Color.RED);
+                generalLED.setFill(Color.RED);
+            } else if (paperLevelNumber < paperLevelWarning) {
+                generalLED.setStroke(Color.YELLOW);
+                generalLED.setFill(Color.YELLOW);
+            } else {
+                generalLED.setStroke(Color.GREEN);
+                generalLED.setFill(Color.GREEN);
+            }
+
+            // Check if the fuser level is to low
+            if (fuserLevelNumber < 0) {
+                drumLED.setStroke(Color.RED);
+                drumLED.setFill(Color.RED);
+            } else if (fuserLevelNumber < fuserLevelWarning) {
+                drumLED.setStroke(Color.YELLOW);
+                drumLED.setFill(Color.YELLOW);
+            } else {
+                drumLED.setStroke(Color.GREEN);
+                drumLED.setFill(Color.GREEN);
+            }
+
+            if (isError()) {
+                generalLED.setStroke(Color.RED);
+                generalLED.setFill(Color.RED);
+            }
+        }
+		else {
+            tonerLED  .setStroke(Color.GRAY);
+            tonerLED  .setFill(Color.GRAY);
+            drumLED   .setStroke(Color.GRAY);
+            drumLED   .setFill(Color.GRAY);
+            generalLED.setStroke(Color.GRAY);
+            generalLED.setFill(Color.GRAY);
+        }
 	}
 	
 	// Set the error number
@@ -397,7 +430,7 @@ public class TestFX extends Application {
 	// Gets the error
 	public boolean isError() 
 	{
-		errorCode = Math.floor(Math.random() * 2);
+		//errorCode = Math.floor(Math.random() * 2);
 		return errorCode > 0;
 	}
 }
