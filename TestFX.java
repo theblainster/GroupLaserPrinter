@@ -200,84 +200,6 @@ public class TestFX extends Application  {
         btThickPaper .addEventFilter(MouseEvent.MOUSE_CLICKED, thickPaperClicked);
 
 
-        // PRINTER CONTROL BUTTONS
-
-        // Bottom control buttons
-        Button btPowerOn      = new Button("Power On");
-        Button btPowerOff     = new Button("Power Off");
-        Button btRemoveOutput = new Button("Remove Output");
-        Button btClearErrors  = new Button("Clear All Errors");
-        Button btExit         = new Button("Click to exit");
-        btPowerOff   .setDisable(true);
-        btClearErrors.setDisable(true);
-
-        // HBox for bottom control buttons
-        HBox hBoxControlButtons = new HBox();
-        hBoxControlButtons.setSpacing(12);
-        hBoxControlButtons.getChildren().addAll(btPowerOn, btPowerOff, btRemoveOutput, btClearErrors, btExit);
-        hBoxControlButtons.setAlignment(Pos.CENTER);
-
-        // Power On button event
-        var mousePowerOn = new EventHandler<MouseEvent>() {
-            @Override
-            public void handle (MouseEvent event) {
-                btPowerOff        .setDisable(false);
-                btPowerOn         .setDisable(true);
-                btClearErrors     .setDisable(false);
-                normalPaperClicked.handle(event);
-                laserPrinter.powerOn();
-                LEDRefresh();
-            }
-        };
-
-        // Power Off button event
-        var mousePowerOff = new EventHandler<MouseEvent>() {
-            @Override
-            public void handle (MouseEvent event) {
-                btPowerOff   .setDisable(true);
-                btPowerOn    .setDisable(false);
-                btClearErrors.setDisable(true);
-                btNormalPaper.setDisable(true);
-                btThickPaper .setDisable(true);
-                setFuserTemp(0);
-                laserPrinter.powerOff();
-                LEDRefresh();
-            }
-        };
-
-        // Remove Output button event
-        var mouseRemoveOutput = new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                System.out.println("Output removed");
-            }
-        };
-
-        // Clear Errors button event
-        var mouseClearErrors = new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                setError(0);
-                LEDRefresh();
-            }
-        };
-
-        // Exit button event
-        var mouseExit = new EventHandler<MouseEvent>() {
-            @Override
-            public void handle (MouseEvent event) {
-                stage.close();
-            }
-        };
-
-        // Assigns the control button events to the buttons
-        btPowerOn     .addEventFilter(MouseEvent.MOUSE_CLICKED, mousePowerOn);
-        btPowerOff    .addEventFilter(MouseEvent.MOUSE_CLICKED, mousePowerOff);
-        btRemoveOutput.addEventFilter(MouseEvent.MOUSE_CLICKED, mouseRemoveOutput);
-        btClearErrors .addEventFilter(MouseEvent.MOUSE_CLICKED, mouseClearErrors);
-        btExit        .addEventFilter(MouseEvent.MOUSE_CLICKED, mouseExit);
-
-
 		// STATUS
 		// LED Indicators
 		Label statusLabel     = new Label("Status");
@@ -323,6 +245,7 @@ public class TestFX extends Application  {
         Button   btCancelJob = new Button("Cancel");
         Button   btAddJob    = new Button("Add");
         Button   btClearJobs = new Button("Clear");
+        btPrintJob.setDisable(true);
 
         // Layout for print queue
         VBox vBoxQueueLayout = new VBox();
@@ -336,8 +259,89 @@ public class TestFX extends Application  {
         ObservableList<String> items = FXCollections.observableArrayList ("Job #1", "Job #2", "Job #3");
         printQueue.setItems(items);
         vBoxQueueLayout.getChildren().addAll(printQueue, queueButtons);
-		
-		// LAYOUT
+
+
+        // PRINTER CONTROL BUTTONS
+        // Bottom control buttons
+        Button btPowerOn      = new Button("Power On");
+        Button btPowerOff     = new Button("Power Off");
+        Button btRemoveOutput = new Button("Remove Output");
+        Button btClearErrors  = new Button("Clear All Errors");
+        Button btExit         = new Button("Click to exit");
+        btPowerOff   .setDisable(true);
+        btClearErrors.setDisable(true);
+
+        // HBox for bottom control buttons
+        HBox hBoxControlButtons = new HBox();
+        hBoxControlButtons.setSpacing(12);
+        hBoxControlButtons.getChildren().addAll(btPowerOn, btPowerOff, btRemoveOutput, btClearErrors, btExit);
+        hBoxControlButtons.setAlignment(Pos.CENTER);
+
+        // Power On button event
+        var mousePowerOn = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle (MouseEvent event) {
+                btPowerOff        .setDisable(false);
+                btPowerOn         .setDisable(true);
+                btClearErrors     .setDisable(false);
+                btPrintJob        .setDisable(false);
+                normalPaperClicked.handle(event);
+                laserPrinter.powerOn();
+                LEDRefresh();
+            }
+        };
+
+        // Power Off button event
+        var mousePowerOff = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle (MouseEvent event) {
+                btPowerOff   .setDisable(true);
+                btPowerOn    .setDisable(false);
+                btClearErrors.setDisable(true);
+                btNormalPaper.setDisable(true);
+                btThickPaper .setDisable(true);
+                btPrintJob   .setDisable(true);
+                setFuserTemp(0);
+                laserPrinter.powerOff();
+                LEDRefresh();
+            }
+        };
+
+        // Remove Output button event
+        var mouseRemoveOutput = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                System.out.println("Output removed");
+            }
+        };
+
+        // Clear Errors button event
+        var mouseClearErrors = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                setError(0);
+                LEDRefresh();
+            }
+        };
+
+        // Exit button event
+        var mouseExit = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle (MouseEvent event) {
+                mousePowerOff.handle(event);
+                stage.close();
+            }
+        };
+
+        // Assigns the control button events to the buttons
+        btPowerOn     .addEventFilter(MouseEvent.MOUSE_CLICKED, mousePowerOn);
+        btPowerOff    .addEventFilter(MouseEvent.MOUSE_CLICKED, mousePowerOff);
+        btRemoveOutput.addEventFilter(MouseEvent.MOUSE_CLICKED, mouseRemoveOutput);
+        btClearErrors .addEventFilter(MouseEvent.MOUSE_CLICKED, mouseClearErrors);
+        btExit        .addEventFilter(MouseEvent.MOUSE_CLICKED, mouseExit);
+
+
+        // LAYOUT
         // HBox for all sections of app
         HBox hBoxLayout = new HBox();
         hBoxLayout.setAlignment(Pos.CENTER);
@@ -385,12 +389,10 @@ public class TestFX extends Application  {
             if (paperLevelNumber < 0) {
                 generalLED.setStroke(Color.RED);
                 generalLED.setFill(Color.RED);
-            } 
-			else if (laserPrinter.lowPaper()) {
+            } else if (laserPrinter.lowPaper()) {
                 generalLED.setStroke(Color.YELLOW);
                 generalLED.setFill(Color.YELLOW);
-            } 
-			else {
+            } else {
                 generalLED.setStroke(Color.GREEN);
                 generalLED.setFill(Color.GREEN);
             }
