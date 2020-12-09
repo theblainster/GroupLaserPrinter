@@ -4,7 +4,7 @@ import java.util.Queue;
 public class LaserPrinter {
 	private boolean 		isOn = false;
 	private PaperAssembly   paperTray;
-	public DisplayAssembly display;
+	private DisplayAssembly display;
 	private OutputAssembly  outputTray;
 	private TonerAssembly   toner;
 	private FuserAssembly   fuser;
@@ -12,16 +12,27 @@ public class LaserPrinter {
 	private PrintQueue		queue;
 	
 	public LaserPrinter() {
-		paperTray  = new PaperAssembly(300);
+		paperTray  = new PaperAssembly(175);
 		display	   = new DisplayAssembly();
 		outputTray = new OutputAssembly();
-		toner	   = new TonerAssembly(600);
+		toner	   = new TonerAssembly(470);
 		fuser	   = new FuserAssembly();
-		printing   = new PrintAssembly();
+		printing   = new PrintAssembly(380);
 		queue	   = new PrintQueue();
 	}
 	
-	// Body of logic
+	// Getters
+	public int getPaperTrayLevel(){
+		return paperTray.getValue();
+	}
+
+	public int getTonerLevel() {
+		return toner.getValue();
+	}
+
+	public int getDrumLevel() {
+		return printing.getValue();
+	}
 
 	public boolean printerIsOn(){
 		return isOn;
@@ -35,7 +46,7 @@ public class LaserPrinter {
 			System.out.println("Laser Printer - Starting up.");
 
 			try {
-				display   .poweringOn();
+				display   .activate();
 				paperTray .activate();
 				display   .activate();
 				outputTray.activate();
@@ -99,32 +110,17 @@ public class LaserPrinter {
 
 	// Adds paper to the paper tray
 	public void fillPaper() {
-		if (isOn) {
-			paperTray.fillPaper();
-		}
-		else {
-			System.out.println("Printer is not powered on. Please turn on the printer first.");
-		}
+		paperTray.fillPaper();
 	}
 
 	// Adds toner to the toner
 	public void fillToner() {
-		if (isOn) {
-			toner.tonerReload();
-		}
-		else {
-			System.out.println("Printer is not powered on. Please turn on the printer first.");
-		}
+		toner.tonerReload();
 	}
 
 	// Replaces the old drum with a new drum
 	public void replaceDrum() {
-		if (isOn) {
-			printing.replaceDrum();
-		}
-		else {
-			System.out.println("Printer is not powered on. Please turn on the printer first.");
-		}
+		printing.replaceDrum();
 	}
 
 	// Adds a document to the print queue

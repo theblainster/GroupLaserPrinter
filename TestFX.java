@@ -27,27 +27,26 @@ public class TestFX extends Application  {
     LaserPrinter laserPrinter = new LaserPrinter();
 
     // Maximum, Minimum/Warning, and other levels for bar chart
-    public static final int MAX_PAPER_LEVEL    = 400;
-    public static final int MAX_TONER_LEVEL    = 200;
-    public static final int MAX_FUSER_LEVEL    = 500;
+    public static final int MAX_PAPER_LEVEL    = 300;
+    public static final int MAX_TONER_LEVEL    = 850;
+    public static final int MAX_DRUM_LEVEL     = 1000;
     public static final int DEFAULT_FUSER_TEMP = 0;
-    public static final int PAPER_TO_ADD       = 50;
 
     // Levels (numbers) for bar chart 
-    private int paperLevelNumber  = 100;
-    private int tonerLevelNumber  = 100;
-    private int fuserLevelNumber  = 100;
-	
+    private int paperLevelNumber  = laserPrinter.getPaperTrayLevel();
+    private int tonerLevelNumber  = laserPrinter.getTonerLevel();
+    private int drumLevelNumber   = laserPrinter.getDrumLevel();
+
 	// Levels (numbers) for status report
 	private int paperLevelWarning = MAX_PAPER_LEVEL / 10;
 	private int tonerLevelWarning = MAX_TONER_LEVEL / 10;
-	private int fuserLevelWarning = MAX_FUSER_LEVEL / 10;
+	private int drumLevelWarning  = MAX_DRUM_LEVEL / 10;
 	private double errorCode      = 0;
 
     // Levels (percentages) for bar chart
     private int paperLevelPercent = (int) (100 * ((float) paperLevelNumber / (float) MAX_PAPER_LEVEL));
     private int tonerLevelPercent = (int) (100 * ((float) tonerLevelNumber / (float) MAX_TONER_LEVEL));
-    private int fuserLevelPercent = (int) (100 * ((float) fuserLevelNumber / (float) MAX_FUSER_LEVEL));
+    private int drumLevelPercent  = (int) (100 * ((float) drumLevelNumber / (float) MAX_DRUM_LEVEL));
 
     // Current Status
 	private Circle tonerLED   = new Circle();
@@ -68,7 +67,7 @@ public class TestFX extends Application  {
         CategoryAxis xAxis = new CategoryAxis();
         NumberAxis   yAxis = new NumberAxis();
         BarChart<String,Number> barChart = new BarChart<String,Number>(xAxis,yAxis);
-        barChart.setTitle("Paper, Toner, and Fuser Levels");
+        barChart.setTitle("Paper, Toner, and Drum Levels");
         yAxis.setLabel("Levels");
 
         // Data for paper level
@@ -81,27 +80,27 @@ public class TestFX extends Application  {
         tonerLevel.setName("Toner");
         tonerLevel.getData().add(new XYChart.Data("Toner", tonerLevelPercent));
 
-        // Data for fuser level
-        XYChart.Series fuserLevel = new XYChart.Series();
-        fuserLevel.setName("Fuser");
-        fuserLevel.getData().add(new XYChart.Data("Fuser", fuserLevelPercent));
+        // Data for drum level
+        XYChart.Series drumLevel = new XYChart.Series();
+        drumLevel.setName("Fuser");
+        drumLevel.getData().add(new XYChart.Data("Drum", drumLevelPercent));
 
         // Adds all data levels to bar chart object
-        barChart.getData().addAll(paperLevel, tonerLevel, fuserLevel);
+        barChart.getData().addAll(paperLevel, tonerLevel, drumLevel);
 
 
-        // Buttons for adding more to paper, toner, and/or fuser levels
-        Button    btAddPaper     = new Button   ("Add Paper");
-        Button    btReplaceToner = new Button   ("Replace Toner");
-        Button    btReplaceFuser = new Button   ("Replace Fuser");
+        // Buttons for adding more to paper, toner, and/or drum levels
+        Button    btAddPaper     = new Button("Add Paper");
+        Button    btReplaceToner = new Button("Replace Toner");
+        Button    btReplaceDrum  = new Button("Replace Fuser");
 
         // HBox for bottom control buttons
         HBox hBoxAddLevels = new HBox();
         hBoxAddLevels.setSpacing(12);
         hBoxAddLevels.setAlignment(Pos.CENTER);
-        hBoxAddLevels.getChildren().addAll(btAddPaper, btReplaceToner, btReplaceFuser);
+        hBoxAddLevels.getChildren().addAll(btAddPaper, btReplaceToner, btReplaceDrum);
 
-        // VBox for Paper, Toner, and Fuser levels; and buttons to add more to these levels
+        // VBox for Paper, Toner, and Drum levels; and buttons to add more to these levels
         VBox vBoxGraphLayout = new VBox();
         vBoxGraphLayout.getChildren().addAll(barChart, hBoxAddLevels);
 
@@ -110,13 +109,9 @@ public class TestFX extends Application  {
         var addPaperClicked = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
-                // Adds paper unless the amount added will put the paper level above maximum level
-                if ((paperLevelNumber + PAPER_TO_ADD) < MAX_PAPER_LEVEL) {
-                    paperLevelNumber += PAPER_TO_ADD;
-                }
-                else {
-                    paperLevelNumber = MAX_PAPER_LEVEL;
-                }
+                // Adds paper to the paper tray
+                laserPrinter.fillPaper();
+                paperLevelNumber  = laserPrinter.getPaperTrayLevel();
                 paperLevelPercent = (int) (100 * ((float) paperLevelNumber / (float) MAX_PAPER_LEVEL));
                 paperLevel.getData().removeAll();
                 paperLevel.getData().add(new XYChart.Data("Paper", paperLevelPercent));
@@ -128,7 +123,9 @@ public class TestFX extends Application  {
         var replaceTonerClicked = new EventHandler<MouseEvent>() {
             @Override
             public void handle (MouseEvent event) {
-                tonerLevelNumber  = MAX_TONER_LEVEL;
+                // Replaces the toner
+                laserPrinter.fillToner();
+                tonerLevelNumber  = laserPrinter.getTonerLevel();
                 tonerLevelPercent = (int) (100 * ((float) tonerLevelNumber / (float) MAX_TONER_LEVEL));
                 tonerLevel.getData().removeAll();
                 tonerLevel.getData().add(new XYChart.Data("Toner", tonerLevelPercent));
@@ -136,14 +133,16 @@ public class TestFX extends Application  {
 			}
         };
 
-        // Replace fuser button event
-        var replaceFuserClicked = new EventHandler<MouseEvent>() {
+        // Replace drum button event
+        var replaceDrumClicked = new EventHandler<MouseEvent>() {
             @Override
             public void handle (MouseEvent event) {
-                fuserLevelNumber  = MAX_FUSER_LEVEL;
-                fuserLevelPercent = (int) (100 * ((float) fuserLevelNumber / (float) MAX_FUSER_LEVEL));
-                fuserLevel.getData().removeAll();
-                fuserLevel.getData().add(new XYChart.Data("Fuser", fuserLevelPercent));
+                // Replaces the drum
+                laserPrinter.replaceDrum();
+                drumLevelNumber  = laserPrinter.getDrumLevel();
+                drumLevelPercent = (int) (100 * ((float) drumLevelNumber / (float) MAX_DRUM_LEVEL));
+                drumLevel.getData().removeAll();
+                drumLevel.getData().add(new XYChart.Data("Drum", drumLevelPercent));
 				LEDRefresh();
 			}
         };
@@ -151,7 +150,7 @@ public class TestFX extends Application  {
         // Button controls for graph
         btAddPaper    .addEventFilter(MouseEvent.MOUSE_CLICKED, addPaperClicked);
         btReplaceToner.addEventFilter(MouseEvent.MOUSE_CLICKED, replaceTonerClicked);
-        btReplaceFuser.addEventFilter(MouseEvent.MOUSE_CLICKED, replaceFuserClicked);
+        btReplaceDrum .addEventFilter(MouseEvent.MOUSE_CLICKED, replaceDrumClicked);
 
 
         // FUSER CONTROLS
@@ -193,7 +192,7 @@ public class TestFX extends Application  {
         hBoxFuserButtons.getChildren().addAll(btNormalPaper, btThickPaper);
 
         // The vertical box that displays the label, text, and buttons
-        VBox vBoxFuserLayout = new VBox(10);
+        VBox vBoxFuserLayout = new VBox();
         vBoxFuserLayout.getChildren().addAll(fuserLabel, fuserText, hBoxFuserButtons);
 
         // Fuser button controls

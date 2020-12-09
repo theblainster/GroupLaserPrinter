@@ -1,7 +1,7 @@
 public class PrintAssembly extends AssemblyUnit implements ISimAssembly
 {
    // Constants
-   final static int DRUM_MAX_LIFE         = 10000;
+   final static int DRUM_MAX_LIFE         = 1000;
    final static int DRUM_WARN_LIFE        = 150;
    final static int MAX_ROTATION_SPEED    = 300;
    final static int MIRROR_SPIN_DOWN_RATE = 2;
@@ -20,6 +20,14 @@ public class PrintAssembly extends AssemblyUnit implements ISimAssembly
       wireChargeStatus = false;
       mirrorRotSpeed   = 0;
       sheetsPrinted    = 0;
+   }
+
+   public PrintAssembly(int sheetsPrinted) {
+      lampStatus         = false;
+      mirrorSpinning     = false;
+      wireChargeStatus   = false;
+      mirrorRotSpeed     = 0;
+      this.sheetsPrinted = sheetsPrinted;
    }
 
    // Stops the mirror spinning
