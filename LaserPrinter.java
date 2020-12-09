@@ -1,5 +1,7 @@
 import java.sql.SQLType;
 import java.util.Queue;
+import javafx.scene.paint.Color;
+
 
 public class LaserPrinter {
 	private boolean 		isOn = false;
@@ -43,6 +45,7 @@ public class LaserPrinter {
 		if(isOn) {
 			System.out.println("Printer is already on.");
 		} else {
+			display.turnOn();
 			System.out.println("Laser Printer - Starting up.");
 
 			try {
@@ -91,6 +94,7 @@ public class LaserPrinter {
 	// Powers of the printers
 	public void powerOff() {
 		if(isOn) {
+			display.resetDisplay();
 			System.out.println("Laser Printer - Shutting down.");
 		
 			try {
@@ -142,7 +146,6 @@ public class LaserPrinter {
 	// Prints the first document in the queue
 	public void printJob() {
 		if (isOn) {
-		//	display.resetDisplay();
 			try {
 				queue    .checkForJob();
 				paperTray.usePaper(queue.nextDoc().getPageCount());
@@ -165,6 +168,7 @@ public class LaserPrinter {
 			}
 		}
 		else {
+			display.resetDisplay();
 			System.out.println("Printer is not powered on. Please turn on the printer first.");
 		}
 	}
@@ -193,23 +197,27 @@ public class LaserPrinter {
 		return isErrors;
 	}
 	
+	// Checks for low toner
 	public boolean lowToner()
 	{
 		if (toner.tonerIsLow()) {
-			//display.tonerWarning();
+			display.tonerWarning();
 			return true;
 		}
 		return false;
 	}
 	
+	// Checks for empty toner
 	public boolean outOfToner()
 	{
 		if (toner.getValue() == 0){
+			display.tonerError();
 			return true;
 		}
 		return false;
 	}
 	
+	// Checks for low drum
 	public boolean lowDrum()
 	{
 		if (printing.getValue() < printing.DRUM_WARN_LIFE) {
@@ -219,28 +227,62 @@ public class LaserPrinter {
 		return false;
 	}
 	
+	// Checks for empty drum
 	public boolean outOfDrum()
 	{
-		if (printing.getValue() == 0) {
+		if (printing.getValue() <= 0) {
 			display.drumError();
 			return true;
 		}
 		return false;
 	}
 	
+	// Checks for low paper
 	public boolean lowPaper(){
 		if (paperTray.getValue() <= paperTray.LOW_PAPER)
 		{
+			display.lowPaper();
 			return true;
 		}
 		return false;
 	}
-	public boolean overflowError()
-	{
-		if (outputTray.outputAssemblyIsFull()){
+	
+	// Checks for empty paper
+	public boolean outOfPaper(){
+		if(paperTray.getValue() < 0)
+		{
+			display.generalError();
 			return true;
 		}
 		return false;
+	}
+	
+	// Checks if there is to much paper in the output
+	public boolean overflowError()
+	{
+		if (outputTray.outputAssemblyIsFull()){
+			display.generalError();
+			return true;
+		}
+		return false;
+	}
+	
+	// Gets the color of the toner LED
+	public Color getTonerColor()
+	{
+		return display.toner.getLightColor();
+	}
+	
+	// Gets the color of the drum LED
+	public Color getDrumColor()
+	{
+		return display.drum.getLightColor();
+	}
+	
+	//Gets the color of the general LED
+	public Color getGeneralColor()
+	{
+		return display.error.getLightColor();
 	}
 	
 }

@@ -375,52 +375,53 @@ public class TestFX extends Application  {
 		if (laserPrinter.printerIsOn()) {
             //Check if the toner level is to low
             if (laserPrinter.outOfToner()) {
-                tonerLED.setStroke(Color.RED);
-                tonerLED.setFill(Color.RED);
+                tonerLED.setStroke(laserPrinter.getTonerColor());
+                tonerLED.setFill  (laserPrinter.getTonerColor());
             } else if (laserPrinter.lowToner()) {
-                tonerLED.setStroke(Color.YELLOW);
-                tonerLED.setFill(Color.YELLOW);
+                tonerLED.setStroke(laserPrinter.getTonerColor());
+                tonerLED.setFill  (laserPrinter.getTonerColor());
             } else {
-                tonerLED.setStroke(Color.GREEN);
-                tonerLED.setFill(Color.GREEN);
+                tonerLED.setStroke(laserPrinter.getTonerColor());
+                tonerLED.setFill  (laserPrinter.getTonerColor());
             }
 
             // Check if the paper level is to low
-            if (paperLevelNumber < 0) {
-                generalLED.setStroke(Color.RED);
-                generalLED.setFill(Color.RED);
+            if (laserPrinter.outOfPaper()) {
+                generalLED.setStroke(laserPrinter.getGeneralColor());
+                generalLED.setFill  (laserPrinter.getGeneralColor());
             } else if (laserPrinter.lowPaper()) {
-                generalLED.setStroke(Color.YELLOW);
-                generalLED.setFill(Color.YELLOW);
+                generalLED.setStroke(laserPrinter.getGeneralColor());
+                generalLED.setFill  (laserPrinter.getGeneralColor());
             } else {
-                generalLED.setStroke(Color.GREEN);
-                generalLED.setFill(Color.GREEN);
+                generalLED.setStroke(laserPrinter.getGeneralColor());
+                generalLED.setFill  (laserPrinter.getGeneralColor());
             }
 
             // Check if the fuser level is to low
             if (laserPrinter.outOfDrum()) {
-                drumLED.setStroke(Color.RED);
-                drumLED.setFill(Color.RED);
+                drumLED.setStroke(laserPrinter.getDrumColor());
+                drumLED.setFill  (laserPrinter.getDrumColor());
             } else if (laserPrinter.lowDrum()) {
-                drumLED.setStroke(Color.YELLOW);
-                drumLED.setFill(Color.YELLOW);
+                drumLED.setStroke(laserPrinter.getDrumColor());
+                drumLED.setFill  (laserPrinter.getDrumColor());
             } else {
-                drumLED.setStroke(Color.GREEN);
-                drumLED.setFill(Color.GREEN);
+                drumLED.setStroke(laserPrinter.getDrumColor());
+                drumLED.setFill  (laserPrinter.getDrumColor());
             }
 
             if (isError() || laserPrinter.overflowError()) {
-                generalLED.setStroke(Color.RED);
-                generalLED.setFill(Color.RED);
+                generalLED.setStroke(laserPrinter.getGeneralColor());
+                generalLED.setFill  (laserPrinter.getGeneralColor());
             }
+
         }
 		else {
-            tonerLED  .setStroke(Color.GRAY);
-            tonerLED  .setFill(Color.GRAY);
-            drumLED   .setStroke(Color.GRAY);
-            drumLED   .setFill(Color.GRAY);
-            generalLED.setStroke(Color.GRAY);
-            generalLED.setFill(Color.GRAY);
+            tonerLED  .setStroke(laserPrinter.getTonerColor());
+            tonerLED  .setFill  (laserPrinter.getTonerColor());
+            drumLED   .setStroke(laserPrinter.getDrumColor());
+            drumLED   .setFill  (laserPrinter.getDrumColor());
+            generalLED.setStroke(laserPrinter.getGeneralColor());
+            generalLED.setFill  (laserPrinter.getGeneralColor());
         }
 	}
 	
