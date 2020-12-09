@@ -4,7 +4,7 @@ import java.util.Queue;
 public class LaserPrinter {
 	private boolean 		isOn = false;
 	private PaperAssembly   paperTray;
-	private DisplayAssembly display;
+	public DisplayAssembly display;
 	private OutputAssembly  outputTray;
 	private TonerAssembly   toner;
 	private FuserAssembly   fuser;
@@ -146,7 +146,7 @@ public class LaserPrinter {
 	// Prints the first document in the queue
 	public void printJob() {
 		if (isOn) {
-			display.resetDisplay();
+		//	display.resetDisplay();
 			try {
 				queue    .checkForJob();
 				paperTray.usePaper(queue.nextDoc().getPageCount());
@@ -182,31 +182,70 @@ public class LaserPrinter {
 	public boolean checkForErrors(){
 		// Checks for low and empty toner
 		boolean isErrors = false;
-		if (toner.tonerIsLow()) {
-			display.tonerWarning();
-			isErrors = true;
-		}
-		if (toner.getValue() == 0){
-			display.tonerError();
-			isErrors = true;
-		}
+		isErrors = lowToner();
+		isErrors = lowToner();
+		isErrors = outOfToner(); 
 
 		// Checks for low or empty toner
-		if (printing.getValue() < printing.DRUM_WARN_LIFE) {
-			display.drumWarning();
-			isErrors = true;
-		}
-		if (printing.getValue() == 0) {
-			display.drumError();
-			isErrors = true;
-		}
+		isErrors = lowDrum();
+		isErrors = outOfDrum();
+		
 
 		// Checks for general errors
-		if (paperTray.getValue() <= paperTray.LOW_PAPER
-		||  outputTray.outputAssemblyIsFull()){
-			display.generalError();
-			isErrors = true;
-		}
+		isErrors = lowPaper();
+		isErrors = overflowError();
 		return isErrors;
 	}
+	
+	public boolean lowToner()
+	{
+		if (toner.tonerIsLow()) {
+			//display.tonerWarning();
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean outOfToner()
+	{
+		if (toner.getValue() == 0){
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean lowDrum()
+	{
+		if (printing.getValue() < printing.DRUM_WARN_LIFE) {
+			display.drumWarning();
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean outOfDrum()
+	{
+		if (printing.getValue() == 0) {
+			display.drumError();
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean lowPaper(){
+		if (paperTray.getValue() <= paperTray.LOW_PAPER)
+		{
+			return true;
+		}
+		return false;
+	}
+	public boolean overflowError()
+	{
+		if (outputTray.outputAssemblyIsFull()){
+			return true;
+		}
+		return false;
+	}
+	
 }
+	

@@ -23,7 +23,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.paint.Color;
 
 
-public class TestFX extends Application {
+public class TestFX extends Application  {
     LaserPrinter laserPrinter = new LaserPrinter();
 
     // Maximum, Minimum/Warning, and other levels for bar chart
@@ -371,10 +371,10 @@ public class TestFX extends Application {
 	private void LEDRefresh(){
 		if (laserPrinter.printerIsOn()) {
             //Check if the toner level is to low
-            if (tonerLevelNumber < 0) {
+            if (laserPrinter.outOfToner()) {
                 tonerLED.setStroke(Color.RED);
                 tonerLED.setFill(Color.RED);
-            } else if (tonerLevelNumber < tonerLevelWarning) {
+            } else if (laserPrinter.lowToner()) {
                 tonerLED.setStroke(Color.YELLOW);
                 tonerLED.setFill(Color.YELLOW);
             } else {
@@ -386,19 +386,21 @@ public class TestFX extends Application {
             if (paperLevelNumber < 0) {
                 generalLED.setStroke(Color.RED);
                 generalLED.setFill(Color.RED);
-            } else if (paperLevelNumber < paperLevelWarning) {
+            } 
+			else if (laserPrinter.lowPaper()) {
                 generalLED.setStroke(Color.YELLOW);
                 generalLED.setFill(Color.YELLOW);
-            } else {
+            } 
+			else {
                 generalLED.setStroke(Color.GREEN);
                 generalLED.setFill(Color.GREEN);
             }
 
             // Check if the fuser level is to low
-            if (fuserLevelNumber < 0) {
+            if (laserPrinter.outOfDrum()) {
                 drumLED.setStroke(Color.RED);
                 drumLED.setFill(Color.RED);
-            } else if (fuserLevelNumber < fuserLevelWarning) {
+            } else if (laserPrinter.lowDrum()) {
                 drumLED.setStroke(Color.YELLOW);
                 drumLED.setFill(Color.YELLOW);
             } else {
@@ -406,7 +408,7 @@ public class TestFX extends Application {
                 drumLED.setFill(Color.GREEN);
             }
 
-            if (isError()) {
+            if (isError() || laserPrinter.overflowError()) {
                 generalLED.setStroke(Color.RED);
                 generalLED.setFill(Color.RED);
             }
@@ -433,4 +435,6 @@ public class TestFX extends Application {
 		//errorCode = Math.floor(Math.random() * 2);
 		return errorCode > 0;
 	}
+	
+	
 }
