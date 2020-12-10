@@ -312,6 +312,7 @@ public class TestFX extends Application  {
             @Override
             public void handle(MouseEvent mouseEvent) {
                 System.out.println("Output removed");
+				LEDRefresh();
             }
         };
 
@@ -413,6 +414,12 @@ public class TestFX extends Application  {
                 generalLED.setStroke(laserPrinter.getGeneralColor());
                 generalLED.setFill  (laserPrinter.getGeneralColor());
             }
+			
+			// Check for a paper jam
+			if (laserPrinter.paperJam()){
+				generalLED.setStroke(laserPrinter.getGeneralColor());
+                generalLED.setFill  (laserPrinter.getGeneralColor());
+			}
 
         }
 		else {

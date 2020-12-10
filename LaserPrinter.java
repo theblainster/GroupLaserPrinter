@@ -257,6 +257,17 @@ public class LaserPrinter {
 		return false;
 	}
 	
+	// Check if there is a paper jam
+	public boolean paperJam(){
+	int jamPaper = (int) (Math.random() * 100);
+		if(jamPaper <=5)
+		{
+			display.generalError();
+			return true;
+		}
+		return false;
+	}
+	
 	// Checks if there is to much paper in the output
 	public boolean overflowError()
 	{
