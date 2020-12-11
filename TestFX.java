@@ -54,7 +54,7 @@ public class TestFX extends Application  {
 	private Circle generalLED = new Circle();
 	
 	// Starting Fuser Temperature
-	private int  fuserTemp = DEFAULT_FUSER_TEMP;
+	private int  fuserTemp = laserPrinter.getDefaultTemp();
 	private Text fuserText = new Text(fuserTemp + " Celsius");
 
     public static void main(String[] args) {
@@ -169,7 +169,7 @@ public class TestFX extends Application  {
         var thickPaperClicked = new EventHandler<MouseEvent>() {
             @Override
             public void handle (MouseEvent event) {
-            setFuserTemp(190);
+            setFuserTemp(laserPrinter.getThickTemp());
             btNormalPaper.setDisable(false);
             btThickPaper .setDisable(true);
             }
@@ -179,7 +179,7 @@ public class TestFX extends Application  {
         var normalPaperClicked = new EventHandler<MouseEvent>() {
             @Override
             public void handle (MouseEvent event) {
-            setFuserTemp(175);
+            setFuserTemp(laserPrinter.getNormalTemp());
             btNormalPaper.setDisable(true);
             btThickPaper .setDisable(false);
             }

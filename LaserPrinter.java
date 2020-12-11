@@ -150,7 +150,6 @@ public class LaserPrinter {
 				queue    .checkForJob();
 				paperTray.usePaper(queue.nextDoc().getPageCount());
 				toner    .useToner(queue.nextDoc().getPageCount());
-				fuser    .heatUp  ();
 				printing .powerOn ();
 				printing .usePages(queue.nextDoc().getPageCount());
 				System.out.println("Successfully printed document: " + queue.nextDoc().getName());
@@ -161,7 +160,7 @@ public class LaserPrinter {
 
 			} finally {
 				printing.powerOff();
-				fuser   .coolDown();
+				printing.powerOff();
 				if (!checkForErrors()) {
 					display.ready();
 				}
@@ -296,5 +295,19 @@ public class LaserPrinter {
 		return display.error.getLightColor();
 	}
 	
+	// Gets the temperature used for normal paper
+	public int getNormalTemp(){
+		return fuser.getNormalTemperature();
+	}
+	
+	// Gets the temperature used for thick paper
+	public int getThickTemp(){
+		return fuser.getThickTemperature();
+	}
+	
+	// Gets the resting temperature of the printer
+	public int getDefaultTemp(){
+		return fuser.getDefaultTemperature();
+	}
 }
 	

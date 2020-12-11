@@ -1,15 +1,15 @@
 public class FuserAssembly extends AssemblyUnit implements ISimAssembly
 {
-   static final int MAX_TEMP     = 200;  // Maximum temperature the fuser can be
-   static final int MIN_TEMP     =  75;  // The minimum temperature the fuser can be
-   static final int MAX_INCREASE =   3;  // The maximum temperature the fuser can increase per second
+   static final int THICK_PAPER_TEMP   = 190; // The temperature for thick paper
+   static final int NORMAL_PAPER_TEMP  = 175;  // The temperature for normal paper
+   static final int DEFAULT_PAPER_TEMP = 0;   // The resting fuser temperature
    
    int currentTemp; // Number of sheets printed
    
    // Constructor that sets the temperature
    FuserAssembly()
    {
-	   currentTemp = MIN_TEMP;
+	   currentTemp = DEFAULT_PAPER_TEMP;
    }
    
    // Constructor that sets the temperature to a passed in value
@@ -18,25 +18,6 @@ public class FuserAssembly extends AssemblyUnit implements ISimAssembly
       currentTemp = changeTemp;
    }
    
-   // Heat the fuser up
-   protected void heatUp()
-   {
-	  while(currentTemp < MAX_TEMP)
-	  {
-		  currentTemp += MAX_INCREASE;
-		  if(currentTemp > MAX_TEMP)
-		  {
-			  currentTemp = MAX_TEMP;
-		  }
-	  }
-   }
-   
-   // Cool the fuser down
-   protected void coolDown()
-   {
-      currentTemp = MIN_TEMP;
-   }
-      
    // Sets the current amount of toner
    @Override
    public void setValue(int setTemp)
@@ -60,5 +41,18 @@ public class FuserAssembly extends AssemblyUnit implements ISimAssembly
    @Override
    public void deactivate(){	
       activated = false;
+   }
+   
+   // 
+   public int getDefaultTemperature(){
+	   return DEFAULT_PAPER_TEMP;
+   }
+   
+   public int getNormalTemperature(){
+      return NORMAL_PAPER_TEMP;
+   }
+   
+   public int getThickTemperature(){
+	   return THICK_PAPER_TEMP;
    }
 }
