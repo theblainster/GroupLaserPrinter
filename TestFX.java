@@ -8,8 +8,8 @@ import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -18,35 +18,37 @@ import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.scene.text.Text;
-import javafx.scene.control.Label;
 import javafx.scene.shape.Circle;
 import javafx.scene.paint.Color;
+
+import javax.print.Doc;
 
 
 public class TestFX extends Application  {
     LaserPrinter laserPrinter = new LaserPrinter();
 
     // Maximum, Minimum/Warning, and other levels for bar chart
-    public static final int MAX_PAPER_LEVEL    = 300;
-    public static final int MAX_TONER_LEVEL    = 850;
-    public static final int MAX_DRUM_LEVEL     = 1000;
-    public static final int DEFAULT_FUSER_TEMP = 0;
+    public static final int MAX_PAPER_LEVEL  = 300;
+    public static final int MAX_TONER_LEVEL  = 850;
+    public static final int MAX_DRUM_LEVEL   = 1000;
+    public static final int MAX_OUTPUT_LEVEL = 250;
 
     // Levels (numbers) for bar chart 
-    private int paperLevelNumber  = laserPrinter.getPaperTrayLevel();
-    private int tonerLevelNumber  = laserPrinter.getTonerLevel();
-    private int drumLevelNumber   = laserPrinter.getDrumLevel();
+    private int paperLevelNumber = laserPrinter.getPaperTrayLevel();
+    private int tonerLevelNumber = laserPrinter.getTonerLevel();
+    private int drumLevelNumber  = laserPrinter.getDrumLevel();
+    private int outputTrayNumber = laserPrinter.getOutputLevel();
 
-	// Levels (numbers) for status report
-	private int paperLevelWarning = MAX_PAPER_LEVEL / 10;
-	private int tonerLevelWarning = MAX_TONER_LEVEL / 10;
-	private int drumLevelWarning  = MAX_DRUM_LEVEL / 10;
-	private double errorCode      = 0;
+	private double errorCode = 0;
 
     // Levels (percentages) for bar chart
     private int paperLevelPercent = (int) (100 * ((float) paperLevelNumber / (float) MAX_PAPER_LEVEL));
     private int tonerLevelPercent = (int) (100 * ((float) tonerLevelNumber / (float) MAX_TONER_LEVEL));
-    private int drumLevelPercent  = (int) (100 * ((float) drumLevelNumber / (float) MAX_DRUM_LEVEL));
+    private int drumLevelPercent  = (int) (100 * ((float) drumLevelNumber  / (float) MAX_DRUM_LEVEL));
+    private int outputTrayPercent = (int) (100 * ((float) outputTrayNumber / (float) MAX_OUTPUT_LEVEL));
+
+    private int jobNumber   = 0;
+    private int indexNumber = 0;
 
     // Current Status
 	private Circle tonerLED   = new Circle();
@@ -54,7 +56,7 @@ public class TestFX extends Application  {
 	private Circle generalLED = new Circle();
 	
 	// Starting Fuser Temperature
-	private int  fuserTemp = laserPrinter.getDefaultTemp();
+    private int  fuserTemp = laserPrinter.getDefaultTemp();
 	private Text fuserText = new Text(fuserTemp + " Celsius");
 
     public static void main(String[] args) {
@@ -66,8 +68,8 @@ public class TestFX extends Application  {
         // Creates bar chart object
         CategoryAxis xAxis = new CategoryAxis();
         NumberAxis   yAxis = new NumberAxis();
-        BarChart<String,Number> barChart = new BarChart<String,Number>(xAxis,yAxis);
-        barChart.setTitle("Paper, Toner, and Drum Levels");
+        BarChart<String,Number> barChart = new BarChart<>(xAxis,yAxis);
+        barChart.setTitle("Paper, Toner, Drum, and Output Tray Levels");
         yAxis.setLabel("Levels");
 
         // Data for paper level
@@ -85,20 +87,25 @@ public class TestFX extends Application  {
         drumLevel.setName("Fuser");
         drumLevel.getData().add(new XYChart.Data("Drum", drumLevelPercent));
 
-        // Adds all data levels to bar chart object
-        barChart.getData().addAll(paperLevel, tonerLevel, drumLevel);
+        // Data for drum level
+        XYChart.Series outputLevel = new XYChart.Series();
+        outputLevel.setName("Output");
+        outputLevel.getData().add(new XYChart.Data("Output Tray", outputTrayPercent));
 
+        // Adds all data levels to bar chart object
+        barChart.getData().addAll(paperLevel, tonerLevel, drumLevel, outputLevel);
 
         // Buttons for adding more to paper, toner, and/or drum levels
-        Button    btAddPaper     = new Button("Add Paper");
-        Button    btReplaceToner = new Button("Replace Toner");
-        Button    btReplaceDrum  = new Button("Replace Fuser");
+        Button btAddPaper     = new Button("Add Paper");
+        Button btReplaceToner = new Button("Replace Toner");
+        Button btReplaceDrum  = new Button("Replace Fuser");
+        Button btRemoveOutput = new Button("Remove Output");
 
         // HBox for bottom control buttons
         HBox hBoxAddLevels = new HBox();
         hBoxAddLevels.setSpacing(12);
         hBoxAddLevels.setAlignment(Pos.CENTER);
-        hBoxAddLevels.getChildren().addAll(btAddPaper, btReplaceToner, btReplaceDrum);
+        hBoxAddLevels.getChildren().addAll(btAddPaper, btReplaceToner, btReplaceDrum, btRemoveOutput);
 
         // VBox for Paper, Toner, and Drum levels; and buttons to add more to these levels
         VBox vBoxGraphLayout = new VBox();
@@ -110,12 +117,14 @@ public class TestFX extends Application  {
             @Override
             public void handle(MouseEvent mouseEvent) {
                 // Adds paper to the paper tray
-                laserPrinter.fillPaper();
-                paperLevelNumber  = laserPrinter.getPaperTrayLevel();
-                paperLevelPercent = (int) (100 * ((float) paperLevelNumber / (float) MAX_PAPER_LEVEL));
-                paperLevel.getData().removeAll();
-                paperLevel.getData().add(new XYChart.Data("Paper", paperLevelPercent));
-				LEDRefresh();
+                if (paperLevelPercent < 100) {
+                    laserPrinter.fillPaper();
+                    paperLevelNumber  = laserPrinter.getPaperTrayLevel();
+                    paperLevelPercent = (int) (100 * ((float) paperLevelNumber / (float) MAX_PAPER_LEVEL));
+                    paperLevel.getData().removeAll();
+                    paperLevel.getData().add(new XYChart.Data("Paper", paperLevelPercent));
+                    LEDRefresh();
+                }
 			}
         };
 
@@ -124,12 +133,14 @@ public class TestFX extends Application  {
             @Override
             public void handle (MouseEvent event) {
                 // Replaces the toner
-                laserPrinter.fillToner();
-                tonerLevelNumber  = laserPrinter.getTonerLevel();
-                tonerLevelPercent = (int) (100 * ((float) tonerLevelNumber / (float) MAX_TONER_LEVEL));
-                tonerLevel.getData().removeAll();
-                tonerLevel.getData().add(new XYChart.Data("Toner", tonerLevelPercent));
-				LEDRefresh();
+                if (tonerLevelPercent < 100) {
+                    laserPrinter.fillToner();
+                    tonerLevelNumber  = laserPrinter.getTonerLevel();
+                    tonerLevelPercent = (int) (100 * ((float) tonerLevelNumber / (float) MAX_TONER_LEVEL));
+                    tonerLevel.getData().removeAll();
+                    tonerLevel.getData().add(new XYChart.Data("Toner", tonerLevelPercent));
+                    LEDRefresh();
+                }
 			}
         };
 
@@ -138,20 +149,37 @@ public class TestFX extends Application  {
             @Override
             public void handle (MouseEvent event) {
                 // Replaces the drum
-                laserPrinter.replaceDrum();
-                drumLevelNumber  = laserPrinter.getDrumLevel();
-                drumLevelPercent = (int) (100 * ((float) drumLevelNumber / (float) MAX_DRUM_LEVEL));
-                drumLevel.getData().removeAll();
-                drumLevel.getData().add(new XYChart.Data("Drum", drumLevelPercent));
-				LEDRefresh();
+                if (drumLevelPercent < 100) {
+                    laserPrinter.replaceDrum();
+                    drumLevelNumber  = laserPrinter.getDrumLevel();
+                    drumLevelPercent = (int) (100 * ((float) drumLevelNumber / (float) MAX_DRUM_LEVEL));
+                    drumLevel.getData().removeAll();
+                    drumLevel.getData().add(new XYChart.Data("Drum", drumLevelPercent));
+                    LEDRefresh();
+                }
 			}
+        };
+
+        // Remove Output button event
+        var removeOutputClicked = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                if (outputTrayPercent > 0) {
+                    laserPrinter.removeOutput();
+                    outputTrayNumber = laserPrinter.getOutputLevel();
+                    outputTrayPercent = (int) (100 * ((float) outputTrayNumber / (float) MAX_OUTPUT_LEVEL));
+                    outputLevel.getData().removeAll();
+                    outputLevel.getData().add(new XYChart.Data("Output Tray", outputTrayPercent));
+                    LEDRefresh();
+                }
+            }
         };
 
         // Button controls for graph
         btAddPaper    .addEventFilter(MouseEvent.MOUSE_CLICKED, addPaperClicked);
         btReplaceToner.addEventFilter(MouseEvent.MOUSE_CLICKED, replaceTonerClicked);
         btReplaceDrum .addEventFilter(MouseEvent.MOUSE_CLICKED, replaceDrumClicked);
-
+        btRemoveOutput.addEventFilter(MouseEvent.MOUSE_CLICKED, removeOutputClicked);
 
         // FUSER CONTROLS
         // Fuser Buttons
@@ -239,13 +267,14 @@ public class TestFX extends Application  {
 		vBoxStatusLayout.getChildren().addAll(statusLabel, tonerLocation, drumLocation, generalLocation);
 
 		// PRINT QUEUE
-        // Print queue pieces
-        ListView printQueue  = new ListView();
-        Button   btPrintJob  = new Button("Print");
-        Button   btCancelJob = new Button("Cancel");
-        Button   btAddJob    = new Button("Add");
-        Button   btClearJobs = new Button("Clear");
-        btPrintJob.setDisable(true);
+        // Print queue buttons
+        Button    btPrintJob  = new Button("Print");
+        Button    btCancelJob = new Button("Cancel");
+        Button    btAddJob    = new Button("Add");
+        Button    btClearJobs = new Button("Clear");
+        btPrintJob. setDisable(true);
+        btClearJobs.setDisable(true);
+        btCancelJob.setDisable(true);
 
         // Layout for print queue
         VBox vBoxQueueLayout = new VBox();
@@ -255,17 +284,130 @@ public class TestFX extends Application  {
         queueButtons   .setSpacing(12);
         queueButtons   .getChildren().addAll(btPrintJob, btCancelJob, btAddJob, btClearJobs);
 
-        // Temporary jobs in list
-        ObservableList<String> items = FXCollections.observableArrayList ("Job #1", "Job #2", "Job #3");
-        printQueue.setItems(items);
-        vBoxQueueLayout.getChildren().addAll(printQueue, queueButtons);
+        // Table list for jobs in print queue
+        TableView printQueueTable  = new TableView();
+        ObservableList<Document> tableData   = FXCollections.observableArrayList();
+        TableColumn jobId    = new TableColumn("Job ID");
+        TableColumn jobName  = new TableColumn("Name");
+        TableColumn jobPages = new TableColumn("# of Pages");
+        jobId.   setCellValueFactory(new PropertyValueFactory("jobId"));
+        jobName .setCellValueFactory(new PropertyValueFactory("Name"));
+        jobPages.setCellValueFactory(new PropertyValueFactory("pageCount"));
+        printQueueTable.getColumns().addAll(jobId, jobName, jobPages);
+        printQueueTable.setEditable(true);
 
+        // Button events for print queue
+        // Print button event
+        var btPrintJobClicked = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle (MouseEvent event) {
+                if (paperLevelNumber - laserPrinter.getNextDocument().getPageCount() >= 0
+                &&  tonerLevelNumber - laserPrinter.getNextDocument().getPageCount() >= 0
+                &&  drumLevelNumber  - laserPrinter.getNextDocument().getPageCount() >= 0
+                &&  outputTrayNumber + laserPrinter.getNextDocument().getPageCount() <  MAX_OUTPUT_LEVEL) {
+                    tableData.remove(0);
+                    laserPrinter.printJob();
+                    indexNumber--;
+
+                    // Updates the paper level on the graph
+                    paperLevelNumber = laserPrinter.getPaperTrayLevel();
+                    paperLevelPercent = (int) (100 * ((float) paperLevelNumber / (float) MAX_PAPER_LEVEL));
+                    paperLevel.getData().removeAll();
+                    paperLevel.getData().add(new XYChart.Data("Paper", paperLevelPercent));
+
+                    // Updates the toner level on the graph
+                    tonerLevelNumber  = laserPrinter.getTonerLevel();
+                    tonerLevelPercent = (int) (100 * ((float) tonerLevelNumber / (float) MAX_TONER_LEVEL));
+                    tonerLevel.getData().removeAll();
+                    tonerLevel.getData().add(new XYChart.Data("Toner", tonerLevelPercent));
+
+                    // Updates the drum level on the graph
+                    drumLevelNumber  = laserPrinter.getDrumLevel();
+                    drumLevelPercent = (int) (100 * ((float) drumLevelNumber / (float) MAX_DRUM_LEVEL));
+                    drumLevel.getData().removeAll();
+                    drumLevel.getData().add(new XYChart.Data("Drum", drumLevelPercent));
+
+                    // Updates the output tray level on the graph
+                    outputTrayNumber  = laserPrinter.getOutputLevel();
+                    outputTrayPercent = (int) (100 * ((float) outputTrayNumber / (float) MAX_OUTPUT_LEVEL));
+                    outputLevel.getData().removeAll();
+                    outputLevel.getData().add(new XYChart.Data("Output Tray", outputTrayPercent));
+
+                    // Gives the possibility of a paper jam
+                    laserPrinter.paperJam();
+                }
+                if (tableData.isEmpty()) {
+                    btPrintJob .setDisable(true);
+                    btClearJobs.setDisable(true);
+                }
+                LEDRefresh();
+            }
+        };
+
+        // Cancel button clicked
+        var btCancelJobClicked = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle (MouseEvent event) {
+                laserPrinter.cancelJob(printQueueTable.getSelectionModel().getSelectedIndex());
+                printQueueTable.getItems().remove(printQueueTable.getSelectionModel().getSelectedIndex());
+                indexNumber = printQueueTable.getItems().size();
+                if (tableData.isEmpty()) {
+                    btCancelJob.setDisable(true);
+                    btClearJobs.setDisable(true);
+                }
+            }
+        };
+
+        // Add button clicked
+        var btAddJobClicked = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle (MouseEvent event) {
+                tableData.add(indexNumber, new Document(jobNumber,"Job #" + jobNumber++, (int) (10 +  (Math.random() * 91))));
+                laserPrinter.addJob(tableData.get(indexNumber++));
+                printQueueTable.setItems(tableData);
+                printQueueTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+                if (laserPrinter.printerIsOn()) {
+                    btPrintJob.setDisable(false);
+                }
+                btClearJobs.setDisable(false);
+            }
+        };
+
+        // Clear button clicked
+        var btClearJobsClicked = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle (MouseEvent event) {
+                tableData.clear();
+                printQueueTable.setItems(tableData);
+                laserPrinter.clearQueue();
+                btClearJobs .setDisable(true);
+                btCancelJob .setDisable(true);
+                jobNumber   = 0;
+                indexNumber = 0;
+            }
+        };
+
+        // Print queue table selected
+        var printQueueTableSelected = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                btCancelJob.setDisable(false);
+            }
+        };
+
+        // Events assigned to buttons and queue table
+        btPrintJob .addEventFilter(MouseEvent.MOUSE_CLICKED, btPrintJobClicked);
+        btCancelJob.addEventFilter(MouseEvent.MOUSE_CLICKED, btCancelJobClicked);
+        btAddJob   .addEventFilter(MouseEvent.MOUSE_CLICKED, btAddJobClicked);
+        btClearJobs.addEventFilter(MouseEvent.MOUSE_CLICKED, btClearJobsClicked);
+        printQueueTable.addEventFilter(MouseEvent.MOUSE_CLICKED, printQueueTableSelected);
+
+        vBoxQueueLayout.getChildren().addAll(printQueueTable, queueButtons);
 
         // PRINTER CONTROL BUTTONS
         // Bottom control buttons
         Button btPowerOn      = new Button("Power On");
         Button btPowerOff     = new Button("Power Off");
-        Button btRemoveOutput = new Button("Remove Output");
         Button btClearErrors  = new Button("Clear All Errors");
         Button btExit         = new Button("Click to exit");
         btPowerOff   .setDisable(true);
@@ -274,7 +416,7 @@ public class TestFX extends Application  {
         // HBox for bottom control buttons
         HBox hBoxControlButtons = new HBox();
         hBoxControlButtons.setSpacing(12);
-        hBoxControlButtons.getChildren().addAll(btPowerOn, btPowerOff, btRemoveOutput, btClearErrors, btExit);
+        hBoxControlButtons.getChildren().addAll(btPowerOn, btPowerOff, btClearErrors, btExit);
         hBoxControlButtons.setAlignment(Pos.CENTER);
 
         // Power On button event
@@ -284,7 +426,14 @@ public class TestFX extends Application  {
                 btPowerOff        .setDisable(false);
                 btPowerOn         .setDisable(true);
                 btClearErrors     .setDisable(false);
-                btPrintJob        .setDisable(false);
+                if (tableData.isEmpty()) {
+                    btPrintJob .setDisable(true);
+                    btClearJobs.setDisable(true);
+                    btCancelJob.setDisable(true);
+                } else {
+                    btPrintJob .setDisable(false);
+                    btClearJobs.setDisable(false);
+                }
                 normalPaperClicked.handle(event);
                 laserPrinter.powerOn();
                 LEDRefresh();
@@ -307,20 +456,12 @@ public class TestFX extends Application  {
             }
         };
 
-        // Remove Output button event
-        var mouseRemoveOutput = new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                System.out.println("Output removed");
-				LEDRefresh();
-            }
-        };
-
         // Clear Errors button event
         var mouseClearErrors = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
                 setError(0);
+                laserPrinter.resetDisplay();
                 LEDRefresh();
             }
         };
@@ -329,7 +470,6 @@ public class TestFX extends Application  {
         var mouseExit = new EventHandler<MouseEvent>() {
             @Override
             public void handle (MouseEvent event) {
-                mousePowerOff.handle(event);
                 stage.close();
             }
         };
@@ -337,7 +477,6 @@ public class TestFX extends Application  {
         // Assigns the control button events to the buttons
         btPowerOn     .addEventFilter(MouseEvent.MOUSE_CLICKED, mousePowerOn);
         btPowerOff    .addEventFilter(MouseEvent.MOUSE_CLICKED, mousePowerOff);
-        btRemoveOutput.addEventFilter(MouseEvent.MOUSE_CLICKED, mouseRemoveOutput);
         btClearErrors .addEventFilter(MouseEvent.MOUSE_CLICKED, mouseClearErrors);
         btExit        .addEventFilter(MouseEvent.MOUSE_CLICKED, mouseExit);
 
@@ -366,14 +505,14 @@ public class TestFX extends Application  {
         stage.show();
     }
 
-    public void setFuserTemp(int temperature) {
+    private void setFuserTemp(int temperature) {
         fuserTemp = temperature;
         fuserText.setText(fuserTemp + " Celsius");
     }
 	
 	// Check to see if there is a potential problem
-	private void LEDRefresh(){
-		if (laserPrinter.printerIsOn()) {
+    private void LEDRefresh(){
+        if (laserPrinter.printerIsOn()) {
             //Check if the toner level is to low
             if (laserPrinter.outOfToner()) {
                 tonerLED.setStroke(laserPrinter.getTonerColor());
@@ -414,15 +553,15 @@ public class TestFX extends Application  {
                 generalLED.setStroke(laserPrinter.getGeneralColor());
                 generalLED.setFill  (laserPrinter.getGeneralColor());
             }
-			
-			// Check for a paper jam
-			if (laserPrinter.paperJam()){
-				generalLED.setStroke(laserPrinter.getGeneralColor());
+
+            // Check for a paper jam
+            if (laserPrinter.paperJam()){
+                generalLED.setStroke(laserPrinter.getGeneralColor());
                 generalLED.setFill  (laserPrinter.getGeneralColor());
-			}
+            }
 
         }
-		else {
+        else {
             tonerLED  .setStroke(laserPrinter.getTonerColor());
             tonerLED  .setFill  (laserPrinter.getTonerColor());
             drumLED   .setStroke(laserPrinter.getDrumColor());
@@ -430,7 +569,7 @@ public class TestFX extends Application  {
             generalLED.setStroke(laserPrinter.getGeneralColor());
             generalLED.setFill  (laserPrinter.getGeneralColor());
         }
-	}
+    }
 	
 	// Set the error number
 	public void setError(int value) 
@@ -441,9 +580,6 @@ public class TestFX extends Application  {
 	// Gets the error
 	public boolean isError() 
 	{
-		//errorCode = Math.floor(Math.random() * 2);
 		return errorCode > 0;
 	}
-	
-	
 }

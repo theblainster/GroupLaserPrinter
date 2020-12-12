@@ -1,7 +1,4 @@
-import java.sql.SQLType;
-import java.util.Queue;
 import javafx.scene.paint.Color;
-
 
 public class LaserPrinter {
 	private boolean 		isOn = false;
@@ -40,12 +37,20 @@ public class LaserPrinter {
 		return isOn;
 	}
 
+	public Document getNextDocument() {
+		return queue.nextDoc();
+	}
+
+	public int getOutputLevel() {
+		return outputTray.getValue();
+	}
+
 	// Turns on the printer
 	public void powerOn() {
 		if(isOn) {
 			System.out.println("Printer is already on.");
-		} else {
 			display.turnOn();
+		} else {
 			System.out.println("Laser Printer - Starting up.");
 
 			try {
@@ -94,8 +99,8 @@ public class LaserPrinter {
 	// Powers of the printers
 	public void powerOff() {
 		if(isOn) {
-			display.resetDisplay();
 			System.out.println("Laser Printer - Shutting down.");
+			display.resetDisplay();
 		
 			try {
 				paperTray.deactivate();
@@ -128,38 +133,55 @@ public class LaserPrinter {
 	}
 
 	// Adds a document to the print queue
-	public void addJob(String nameOfJob, int numberOfPagesToPrint) {
-		queue.addJob(nameOfJob, numberOfPagesToPrint);
+	public void addJob(int id, String nameOfJob, int numberOfPagesToPrint) {
+		queue.addJob(id, nameOfJob, numberOfPagesToPrint);
+	}
+
+	public void addJob(Document document) {
+		queue.addJob(document);
 	}
 
 	// Removes the first document from the queue
 	public void cancelJob(){
 		try {
 			queue.checkForJob();
-			System.out.println("Cancelled document: " + queue.nextDoc().getName());
 			queue.cancelJob();
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 	}
 
+	// Removes specific job from queue
+	public void cancelJob(int id){
+		try {
+			queue.checkForJob();
+			queue.cancelJob(id);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
+	// Clears all jobs from the queue
+	public void clearQueue() {
+		queue.clearQueue();
+	}
+
 	// Prints the first document in the queue
 	public void printJob() {
 		if (isOn) {
 			try {
-				queue    .checkForJob();
-				paperTray.usePaper(queue.nextDoc().getPageCount());
-				toner    .useToner(queue.nextDoc().getPageCount());
-				printing .powerOn ();
-				printing .usePages(queue.nextDoc().getPageCount());
-				System.out.println("Successfully printed document: " + queue.nextDoc().getName());
-				display  .printing();
-				queue    .printJob();
+				queue     .checkForJob();
+				paperTray .usePaper(queue.nextDoc().getPageCount());
+				toner     .useToner(queue.nextDoc().getPageCount());
+				printing  .powerOn ();
+				printing  .usePages(queue.nextDoc().getPageCount());
+				outputTray.addPagesToOutput(queue.nextDoc().getPageCount());
+				display   .printing();
+				queue     .printJob();
 			} catch (Exception e) {
 				System.out.println(e.getMessage());
 
 			} finally {
-				printing.powerOff();
 				printing.powerOff();
 				if (!checkForErrors()) {
 					display.ready();
@@ -167,8 +189,8 @@ public class LaserPrinter {
 			}
 		}
 		else {
-			display.resetDisplay();
 			System.out.println("Printer is not powered on. Please turn on the printer first.");
+			display.resetDisplay();
 		}
 	}
 
@@ -177,25 +199,31 @@ public class LaserPrinter {
 		queue.reportQueue();
 	}
 
+	// Removes paper from output tray
+	public void removeOutput() {
+		outputTray.setCurrentPagesToZero();
+	}
+
+	public void resetDisplay() {
+		display.resetDisplay();
+	}
+
 	// Checks for errors or warnings
 	public boolean checkForErrors(){
-		// Checks for low and empty toner
-		boolean isErrors = false;
-		isErrors = lowToner();
-		isErrors = lowToner();
-		isErrors = outOfToner(); 
-
-		// Checks for low or empty toner
-		isErrors = lowDrum();
-		isErrors = outOfDrum();
-		
-
-		// Checks for general errors
-		isErrors = lowPaper();
-		isErrors = overflowError();
-		return isErrors;
+		// Checks for low or empty toner level
+		if (lowToner() || outOfToner()
+		// Checks for low or empty drum level
+		||  lowDrum()  || outOfDrum()
+		// Checks for other general errors
+		||  lowPaper() || overflowError()) {
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
-	
+
 	// Checks for low toner
 	public boolean lowToner()
 	{
@@ -205,7 +233,7 @@ public class LaserPrinter {
 		}
 		return false;
 	}
-	
+
 	// Checks for empty toner
 	public boolean outOfToner()
 	{
@@ -215,7 +243,7 @@ public class LaserPrinter {
 		}
 		return false;
 	}
-	
+
 	// Checks for low drum
 	public boolean lowDrum()
 	{
@@ -225,7 +253,7 @@ public class LaserPrinter {
 		}
 		return false;
 	}
-	
+
 	// Checks for empty drum
 	public boolean outOfDrum()
 	{
@@ -235,8 +263,8 @@ public class LaserPrinter {
 		}
 		return false;
 	}
-	
-	// Checks for low paper
+
+	// CHecks for low paper
 	public boolean lowPaper(){
 		if (paperTray.getValue() <= paperTray.LOW_PAPER)
 		{
@@ -245,20 +273,20 @@ public class LaserPrinter {
 		}
 		return false;
 	}
-	
+
 	// Checks for empty paper
 	public boolean outOfPaper(){
-		if(paperTray.getValue() < 0)
+		if(paperTray.getValue() <= 0)
 		{
 			display.generalError();
 			return true;
 		}
 		return false;
 	}
-	
+
 	// Check if there is a paper jam
 	public boolean paperJam(){
-	int jamPaper = (int) (Math.random() * 100);
+		int jamPaper = (int) (Math.random() * 100);
 		if(jamPaper <=5)
 		{
 			display.generalError();
@@ -266,7 +294,7 @@ public class LaserPrinter {
 		}
 		return false;
 	}
-	
+
 	// Checks if there is to much paper in the output
 	public boolean overflowError()
 	{
@@ -276,35 +304,35 @@ public class LaserPrinter {
 		}
 		return false;
 	}
-	
+
 	// Gets the color of the toner LED
 	public Color getTonerColor()
 	{
 		return display.toner.getLightColor();
 	}
-	
+
 	// Gets the color of the drum LED
 	public Color getDrumColor()
 	{
 		return display.drum.getLightColor();
 	}
-	
+
 	//Gets the color of the general LED
 	public Color getGeneralColor()
 	{
 		return display.error.getLightColor();
 	}
-	
+
 	// Gets the temperature used for normal paper
 	public int getNormalTemp(){
 		return fuser.getNormalTemperature();
 	}
-	
+
 	// Gets the temperature used for thick paper
 	public int getThickTemp(){
 		return fuser.getThickTemperature();
 	}
-	
+
 	// Gets the resting temperature of the printer
 	public int getDefaultTemp(){
 		return fuser.getDefaultTemperature();

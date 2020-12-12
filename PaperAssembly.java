@@ -46,14 +46,12 @@ public class PaperAssembly extends AssemblyUnit implements ISimAssembly
 	
    // Use the paper in the printer, check if its out of paper
    protected void usePaper(int PaperToUse) throws Exception {
-	  warning(0);
 	  if(paperTray > PaperToUse)
 	  {
          paperTray = paperTray - PaperToUse;
 	  }
 	  else {
           throw new Exception("Not enough paper in the paper tray.");
-	      // warning(1);
       }
    }
    
@@ -66,27 +64,7 @@ public class PaperAssembly extends AssemblyUnit implements ISimAssembly
 	  }
 	  else
 	  {
-	     warning(2);
 	     paperTray = MAX_PAGE;
       }
-   }
-   
-   // Gets passed an error number and displays the error which occurred
-   protected void warning(int errorNumber)
-   {
-	  if(errorNumber == 1)
-	  {
-         System.out.println("Out of paper");
-	  }		  
-	  
-	  else if(errorNumber == 2)
-	  {
-		 System.out.println("Paper tray full");
-	  }
-
-      else if(paperTray <= LOW_PAPER)
-	  {
-	     System.out.println("Your paper tray is low");
-	  }
    }
 }

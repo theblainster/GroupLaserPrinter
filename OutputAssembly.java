@@ -1,15 +1,10 @@
 public class OutputAssembly extends AssemblyUnit implements ISimAssembly {
-    public static final int MAX_PAGES = 75; // Maximum number of pages allowed in the output assembly
-    private int currentPagesInOutput;       // Current number of pages in the output assembly
+    public static final int MAX_PAGES = 250; // Maximum number of pages allowed in the output assembly
+    private int currentPagesInOutput;        // Current number of pages in the output assembly
 
     // Constructor that sets the number of pages in the output assembly to zero
     public OutputAssembly(){
         setCurrentPagesToZero();
-    }
-
-    // Gets the current number of pages in the output assembly
-    public int getCurrentPagesInOutput(){
-        return currentPagesInOutput;
     }
 
     // Sets the current number of pages in the output assembly to the given number as long as the given number is less
@@ -30,9 +25,12 @@ public class OutputAssembly extends AssemblyUnit implements ISimAssembly {
         return currentPagesInOutput >= MAX_PAGES;
     }
 
-    public void addPagesToOutput() throws Exception {
+    public void addPagesToOutput(int pagesToAdd) throws Exception {
         if (outputAssemblyIsFull()){
             throw new Exception("Output tray is full.");
+        }
+        else {
+            currentPagesInOutput += pagesToAdd;
         }
     }
 

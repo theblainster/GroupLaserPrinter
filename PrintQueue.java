@@ -1,7 +1,8 @@
 import java.util.LinkedList;
 
 public class PrintQueue implements ISimAssembly {
-    private LinkedList<Document> documents = new LinkedList<Document>();
+    private LinkedList<Document> documents = new LinkedList<>();
+    private int                  idCounter = 0;
 
     @Override
     public void setValue(int newValue) {};
@@ -41,8 +42,12 @@ public class PrintQueue implements ISimAssembly {
         documents.clear();
     }
 
-    public void addJob(String name, int pageCount) {
-        documents.add(new Document(documents.size(), name, pageCount));
+    public void addJob(Document document) {
+        documents.add(document);
+    }
+
+    public void addJob(int id, String name, int pageCount) {
+        documents.add(new Document(id, name, pageCount));
     }
 
     public void printJob() {

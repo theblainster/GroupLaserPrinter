@@ -77,7 +77,7 @@ public class Test {
 		System.out.print("Job page count: ");
 		String count = s.nextLine();
 		int pageCount = Integer.parseInt(count);
-		o.addJob(name, pageCount);
+		o.addJob(0, name, pageCount);
 	}
 	
 	public static void displayHelp() {
