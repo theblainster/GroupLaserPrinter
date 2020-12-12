@@ -334,13 +334,15 @@ public class TestFX extends Application  {
                     outputLevel.getData().add(new XYChart.Data("Output Tray", outputTrayPercent));
 
                     // Gives the possibility of a paper jam
-                    laserPrinter.paperJam();
+                    if (laserPrinter.checkForErrors()) {
+                        btPrintJob.setDisable(true);
+                    }
+                    LEDRefresh();
                 }
                 if (tableData.isEmpty()) {
                     btPrintJob .setDisable(true);
                     btClearJobs.setDisable(true);
                 }
-                LEDRefresh();
             }
         };
 
@@ -436,6 +438,7 @@ public class TestFX extends Application  {
                 }
                 normalPaperClicked.handle(event);
                 laserPrinter.powerOn();
+                laserPrinter.resetDisplay();
                 LEDRefresh();
             }
         };
@@ -460,9 +463,11 @@ public class TestFX extends Application  {
         var mouseClearErrors = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
-                setError(0);
                 laserPrinter.resetDisplay();
                 LEDRefresh();
+                if (!tableData.isEmpty()) {
+                    btPrintJob.setDisable(false);
+                }
             }
         };
 
@@ -513,7 +518,7 @@ public class TestFX extends Application  {
 	// Check to see if there is a potential problem
     private void LEDRefresh(){
         if (laserPrinter.printerIsOn()) {
-            //Check if the toner level is to low
+            //Check if the toner level is too low
             if (laserPrinter.outOfToner()) {
                 tonerLED.setStroke(laserPrinter.getTonerColor());
                 tonerLED.setFill  (laserPrinter.getTonerColor());
@@ -525,7 +530,7 @@ public class TestFX extends Application  {
                 tonerLED.setFill  (laserPrinter.getTonerColor());
             }
 
-            // Check if the paper level is to low
+            // Check if the paper level is too low
             if (laserPrinter.outOfPaper()) {
                 generalLED.setStroke(laserPrinter.getGeneralColor());
                 generalLED.setFill  (laserPrinter.getGeneralColor());
@@ -537,7 +542,7 @@ public class TestFX extends Application  {
                 generalLED.setFill  (laserPrinter.getGeneralColor());
             }
 
-            // Check if the fuser level is to low
+            // Check if the fuser level is too low
             if (laserPrinter.outOfDrum()) {
                 drumLED.setStroke(laserPrinter.getDrumColor());
                 drumLED.setFill  (laserPrinter.getDrumColor());
@@ -549,7 +554,7 @@ public class TestFX extends Application  {
                 drumLED.setFill  (laserPrinter.getDrumColor());
             }
 
-            if (isError() || laserPrinter.overflowError()) {
+            if (laserPrinter.overflowError()) {
                 generalLED.setStroke(laserPrinter.getGeneralColor());
                 generalLED.setFill  (laserPrinter.getGeneralColor());
             }
@@ -570,16 +575,4 @@ public class TestFX extends Application  {
             generalLED.setFill  (laserPrinter.getGeneralColor());
         }
     }
-	
-	// Set the error number
-	public void setError(int value) 
-	{
-		errorCode = value;
-	}
-	
-	// Gets the error
-	public boolean isError() 
-	{
-		return errorCode > 0;
-	}
 }

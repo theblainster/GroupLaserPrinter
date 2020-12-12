@@ -205,7 +205,7 @@ public class LaserPrinter {
 	}
 
 	public void resetDisplay() {
-		display.resetDisplay();
+		display.turnOn();
 	}
 
 	// Checks for errors or warnings
